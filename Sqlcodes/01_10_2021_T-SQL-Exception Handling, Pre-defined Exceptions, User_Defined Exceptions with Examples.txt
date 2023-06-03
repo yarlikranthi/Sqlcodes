@@ -1,0 +1,570 @@
+
+-- Write a cursor program to find maximum salary without using MAX function
+
+-- Write a cursor program to find minimum salary without using MIN function
+
+-- write a cursor program to calculate total, avg and grade and insert into result table
+
+std_db
+------
+std_id	std_name    s1	  s2	s3
+------	--------    ---- ---- -----
+101	xxx	     90   80    60
+102     xxx   	     60   45    50
+
+result
+------
+std_id   total     avg    grade
+------	 ------    ----   ------
+
+
+** By default CURSORS follows TOP to BOTTOM approach
+
+
+SCROLLABLE CURSORS :
+--------------------
+
+  => By default cursor is called as forward only curosr and it supports forward navigation But doesn't support      backward navigation
+
+  => if cursor declared wiht SCROLL then is called as SCROLLABLE CURSOR and it supports both forward and      backword navigation
+
+  => forward only supports only FETCH NEXT statement but, SCROLLABLE cursor supports the following fetch      statements
+
+           	FETCH FIRST		=> fetches frist record
+		FETCH NEXT		=> fetches next record
+		FETCH PRIOR		=> fetches previous record
+		FETCH LAST		=> fetches last record
+		FETCH ABSOLUTE N	=> fetches Nth record from starting from 1st record
+		FETCH RELATIVE N	=> fetches Nth record from starting from current record
+smith
+allen
+ford   <--
+jones
+miller  2th
+blake
+
+Example :
+---------
+
+Declare C1 cursor SCROLL for select ename from emp
+Declare @name varchar(10)
+Open C1
+FETCH FIRST FROM C1 INTO @name
+print @name
+FETCH ABSOLUTE 5 FROM C1 INTO @name
+print @name
+FETCH RELATIVE 2 FROM C1 INTO @name
+print @name
+FETCH LAST FROM C1  INTO @name
+print @name
+FETCH PRIOR FROM C1 INTO @name
+print @name
+close c1
+deallocate c1
+
+
+blake
+clark
+hemanth
+king
+turner
+adams
+james
+archana
+miller
+
+output :
+--------
+
+blake
+turner
+james
+miller
+archana
+
+
+-- write a prog to print names in reverse order ( last to first )
+
+
+DECLARE C1 CURSOR SCROLL FOR SELECT ENAME FROM EMP
+DECLARE @name varchar(10)
+OPEN C1
+Fetch LAST FROM C1 INTO @name
+WHILE( @@FETCH_STATUS=0)
+BEGIN
+  print @name
+  FETCH PRIOR FROM C1 INTO @name
+END
+CLOSE C1
+DEALLOCATE C1
+
+OUTPUT:
+-------
+
+miller
+archana
+james
+adams
+turner
+king
+hemanth
+clark
+blake
+
+
+-- program to for display every 2nd record or Even records
+
+
+DECLARE C1 CURSOR SCROLL FOR SELECT ENAME FROM EMP
+DECLARE @name varchar(10)
+OPEN C1
+FETCH RELATIVE 2 FROM C1 INTO @name
+WHILE(@@FETCH_STATUS=0)
+BEGIN
+ PRINT @name
+ FETCH RELATIVE 2 from C1 INTO @name
+End
+Close c1
+Deallocate C1
+
+STATIC   VS  DYNAMIC Cursors :
+------------------------------
+
+  -> if cursor is static then we if we make changes in base table the change are not reflected on CURSOR
+
+7788		hemanth		6300
+
+
+declare c1 cursor STATIC FOR SELECT sal from emp where empno=7788
+declare @sal money
+OPEN C1
+update emp set sal = 2000 where empno=7788
+fetch c1 into @sal
+print @sal
+CLOSE C1
+DEALLOCATE C1
+
+output :   6300
+
+
+DYNAMIC CURSORS :
+-----------------
+
+  => if cursor is dynamic then if we make changes in base table that changes are reflected to cursor
+
+  => By default Cursor is Dynamic
+
+
+7788	hemanth		2000
+
+declare c1 cursor DYNAMIC FOR SELECT sal from emp where empno=7788
+declare @sal money
+OPEN C1
+update emp set sal = 5000 where empno=7788
+fetch c1 into @sal
+print @sal
+CLOSE C1
+DEALLOCATE C1
+
+o/p: 5000    
+
+note: updated salary fetching into @sal variable
+
+			
+Exception Handling / Error Handling:
+------------------------------------
+
+  -> In Programming languages Errors are classified into 3 types
+
+            i. Syntax Errors
+
+           ii. Logical Errors
+
+          iii. Runtime Errors  ( exception)
+
+Runtime Errors: Errors that are raised during program execution are called as runtime Errors or Exceptions
+---------------
+
+
+ex:  Declare @x tinyint
+
+     set @x = 1000     => Runtime Error 
+
+
+=> In T-SQL Program if any statement caused runtime error then sql server displays error message.  To replace system generated error message with our own simple and user friendly message then we need to handle that exception.
+
+=> to handle runtim errors include a block called TRY....CATCH block
+
+syntax:
+-------
+
+BEGIN TRY
+  statements    => causes exception
+END TRY
+BEGIN CATCH
+  statements    => handling exception
+END CATCH
+
+Example :
+---------
+
+DECLARE @x tinyint
+BEGIN TRY
+  SET @x=1000
+END TRY
+BEGIN CATCH
+  print 'Input value Exceeds given variable size'
+END CATCH
+
+
+ex2:
+----
+
+ -- t-sql program for to handle if any value is divide with 0
+
+
+declare @a tinyint, @b tinyint, @c tinyint
+begin try
+  set @a=10
+  set @b=2
+  set @c=@a/@b
+  print @c
+end try
+Begin catch
+  print 'Divisor Should not be Equals to 0'
+End catch
+
+ 
+Error Handling Funtions :
+-------------------------
+
+i. ERROR_NUMBER()  	=> returns error number
+
+ii. ERROR_MESSAGE()	 => returns error message
+
+iii. ERROR_SEVERITY()	=> returns error severity level
+
+iv. ERROR_STATE()	=> returns error state
+
+v. ERROR_LINE()		=> returns error line number
+
+
+declare @a tinyint, @b tinyint, @c tinyint
+begin try
+  set @a=10
+  set @b=0
+  set @c=@a/@b
+  print @c
+end try
+Begin catch
+  if ERROR_NUMBER()=220
+	print 'Value Exceeding Limit'
+  else if ERROR_NUMBER()=8134  
+        print 'Divisor Should not be Equals to 0'
+End catch
+
+Output:
+-------
+  
+  Divisor Should not be Equals to 0
+
+ 
+** to see the list of errors
+
+  select * from sys.messages
+
+** to find particular error message
+
+  select * from sys.messages where message_id=8134
+
+
+ex 4 :
+------
+
+  -> write a program to insert data into emp66 table 
+
+create table emp66(eno int primary key, ename varchar(10) not null, sal money  check ( sal >=3000 )
+
+
+DECLARE @eno int, @name varchar(10), @sal money
+  BEGIN TRY
+    set @eno=10
+	set @name='king'
+	set @sal = 4000
+	insert into emp666 values( @eno, @name, @sal)
+  END TRY
+  BEGIN CATCH
+    IF ERROR_NUMBER()=2627 
+	   print 'Eno Should not be Accept Duplicates'
+	ELSE IF ERROR_NUMBER()=515 
+	  print 'Name Should Not Be Null'
+   ELSE IF ERROR_NUMBER()=547 
+      print 'Minimum Employee Salary Rs.3000'
+ END CATCH
+
+output:
+-------
+  
+  Select * from emp666;
+
+
+DECLARE @eno int, @name varchar(10), @sal money
+  BEGIN TRY
+    set @eno=10
+	set @name='scott'
+	set @sal = 3500
+	insert into emp666 values( @eno, @name, @sal)
+  END TRY
+  BEGIN CATCH
+    IF ERROR_NUMBER()=2627 
+	   print 'Eno Should not be Accept Duplicates'
+	ELSE IF ERROR_NUMBER()=515 
+	  print 'Name Should Not Be Null'
+   ELSE IF ERROR_NUMBER()=547 
+      print 'Minimum Employee Salary Rs.3000'
+ END CATCH
+
+output :
+--------
+
+Eno Should not be Accept Duplicates
+
+
+
+DECLARE @eno int, @name varchar(10), @sal money
+  BEGIN TRY
+    set @eno=11
+	set @name='scott'
+	set @sal = 500
+	insert into emp666 values( @eno, @name, @sal)
+  END TRY
+  BEGIN CATCH
+    IF ERROR_NUMBER()=2627 
+	   print 'Eno Should not be Accept Duplicates'
+	ELSE IF ERROR_NUMBER()=515 
+	  print 'Name Should Not Be Null'
+   ELSE IF ERROR_NUMBER()=547 
+      print 'Minimum Employee Salary Rs.3000'
+ END CATCH
+
+output :
+--------
+
+Minimum Employee Salary Rs.3000
+
+
+USER DEFINED ERRORS :
+---------------------
+
+  -> According to client requirement developer raise erorr messages are called as user defined errors
+
+					or
+
+  -> Errors raised by user are called as user defined errors
+
+  -> when pre-defined errors not meet our requirements then we dfine our own erorrs called as user dfined      errors
+ 
+  -> User defined error can raise by using RAISERROR Procedure
+
+syn:  RAISERROR( Error_msg, serverity level, state )
+
+          severity level => 1- 25
+
+          state   => 1 to 255
+         
+
+
+Example:
+--------
+
+Declare @eno int, @amt money
+Set @eno=7788
+set @amt=1000
+if DATENAME( dw, getdate() ) IN ( 'Saturday','Sunday') 
+   raiserror( 'Week-ends trans. are not allowed', 15, 1)
+else
+  begin
+   Update emp set sal = sal + @amt where empno = @eno
+   print 'salary incremented'
+  end
+
+output:
+-------
+
+
+Week-ends trans. are not allowed
+
+note:   if getdate() is saturday/sunday thenm error displays 
+
+
+** How to add user defined error to sys.messages table ?
+
+  sp_addmessage 50001, 15, 'week-ends Trans. are Not Allowed.'  
+
+** to check message id in sys.messages table :
+----------------------------------------------
+
+   select * from sys.messages where message_id=50001
+
+** how to use 50001 message id in t-sql programs :
+--------------------------------------------------
+
+Declare @eno int, @amt money
+Set @eno=7788
+set @amt=1000
+if DATENAME( dw, getdate() ) IN ( 'Saturday','friday') 
+   raiserror( 50001, 15, 1)
+else
+  begin
+   Update emp set sal = sal + @amt where empno = @eno
+   print 'salary incremented'
+  end
+
+output :
+--------
+
+week-ends Trans. are Not Allowed.
+
+
+** how to remove user defiend errors from sys.messages table :
+--------------------------------------------------------------
+
+  sp_dropmessage 50001
+
+Excerscie :
+-----------
+
+   -- write a progrma to transfer amount from one account to another account 
+
+bank_mas:  accno     cname   bal
+           -----     ------  ----
+	   sbi1      king    6000
+           sbi2      scott   10000
+
+validations :
+-------------
+
+  i. check for the existence of source account
+
+ ii. check for the existence of destination accout
+
+iii. check source balance is sufficient or not
+
+sacno = 'sbi1'
+dacno = 'sbi2'
+@amt= 8000
+
+
+II. NAMED BLOCKS :
+------------------
+
+  ->  A set of t-sql program statements are stored in db permanently that type of blocks are called as NAMED       BLOCKS
+ 
+  -> All named block programs are start with CREATE OR ALTER  Statement
+
+           ex: procedures, functions & triggers
+
+Adv. :
+------
+
+i. Modularity :
+---------------
+
+  -> A huge program is devided into sub-programs
+
+  adv.
+
+       a. easy to understand
+
+       b. easy to debug-the errors
+
+ii. Re-usability :
+------------------
+
+  -> Once Procedure/function/trigger created in DB that is stored in db permanently.  so applications which are      connected to db can reuse procedure / function
+
+iii. security :
+---------------
+
+   -> proc/func are secured because they are stord in db. so only authorized used can execute these programs
+
+
+iv. Invoking from front-end applications :
+------------------------------------------
+
+  -> proc/func can be called from front-end applicatiions like java, .net, php, etc.,
+
+
+v. Improves the performance :
+------------------------------
+
+  -> Proc improves performance because tney are pre-compiled i.e., compiled already and ready for execution.
+
+  -> when we create a procedure progrma is compiled and stored in db and whenever we call procedure only            execution is repeated bot not compilation, so this is improves performance.
+
+Stored Procedures :
+-------------------
+
+ 
+
+
+-> analytical functions
+
+-> row_number()
+
+-> rank(), dense_rank()
+
+-> TO DISPLAY TOP-5 MAXIMUM SALARIES
+
+-> TO SWAP TO ACCOUNT BALNACES
+
+-> TO DISPLAY DUPLICATE RECORDS
+
+-> TO REMOVE DUPLICATE RECORDS
+
+-> TO DISPLAYS Nth MAXIMUM SALARY
+
+TYPE OF SUB-QUERIES
+-------------------
+I. SINGLE ROW
+II. MULTI-ROW
+III. DERIVED TABLES
+IV. CO-RELATED SUB-QUERIES
+V. SCALAR SUB-QUERIES
+
+
+
+
+
+  25   25   25   25 
+
+  
+
+
+
+
+
+
+
+
+  
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

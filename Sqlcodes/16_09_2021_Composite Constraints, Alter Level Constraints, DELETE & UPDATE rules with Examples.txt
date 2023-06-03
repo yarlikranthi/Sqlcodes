@@ -1,0 +1,585 @@
+
+Composite Primary key :
+-----------------------
+
+ -> To Primary key constraint to morethan one column is called as composite Primary key constraint
+
+ -> In Composite primary key constraint data is compared with Pairwise 
+
+Example:
+--------
+
+  -> Create a product master table with Company id, Product id, Pname
+
+Validations :
+-------------
+
+  -> Cid and Pids are mandatory
+
+  -> Cid and Pids pair should not be repeated
+
+
+prod_mas
+--------
+
+cid		pid		pname		pk(cid,pid)
+----		----		------
+c1		p1		Tea
+c1		p2		Coffee
+c2		p1		Tea
+c1		p1		Soaps   => Invalid record
+
+
+
+Create table prod_mas( cid varchar(10),
+                       pid varchar(10),
+		       pname varchar(20),
+                                Primary Key( cid, pid )
+                     )
+
+
+Testing :
+---------
+
+Testing :
+---------
+
+  Insert into prod_mas values( 'c1','p1','tea')
+
+  Insert into prod_mas values( 'c1','p2','coffee')
+
+  Insert into prod_mas values( 'c2','p1','tea')
+
+  Insert into prod_mas values( 'c1','p1','soaps')   => Error
+
+  select * from prod_mas
+
+cid     pid     pname
+----	----	----- 
+c1	p1	tea
+c1	p2	coffee
+c2	p1	tea
+
+
+Composite Foreign key constraint :
+----------------------------------
+
+  -> Foreign key constraint is added to morethan one column is called as compoiste foreign key constraint
+
+  -> Composite Foreign key is refereced with Composite Primary Key constraint
+
+  -> Composite foreign key constraint is supported Table Level / Alter Level supported
+
+Example :
+---------
+
+ ** Create a Sales table with sales id, sales date, cid, pid, qty and amount
+
+Validations :
+-------------
+
+ -> Cid  & Pid combination should be matched with Product master table of CID & PID
+
+ -> cid is mandatory
+
+ -> pid is mandatory
+
+
+Table creation:
+---------------
+
+  Create table sales( sid varchar(10),
+		      sdate date default getdate(),
+                      cid varchar(10) not null,
+		      pid varchar(10) not null,
+		      qty tinyint,
+		      amount decimal(10,2),
+                        Foreign key(cid,pid) REFERENCES prod_mas(cid,pid)
+		    )
+Testing:
+--------
+
+
+Insert into sales(sid, cid, pid, qty, amount) values ( 's1','c1','p1',2,1000)
+
+Insert into sales(sid, cid, pid, qty, amount) values ( 's2','c1','p1',1,800)
+
+Insert into sales(sid, cid, pid, qty, amount) values ( 's3','c1','p3',1,900)   => Error
+
+
+sales
+------
+sid	sdate		cid	pid	qty	amount
+---	-----		---	---	---	------
+s1	2021-09-16	c1	p1	2	1000
+s2	2021-09-16	c1	p2	1	800
+
+
+** In Table Level which constraint is not supported
+
+a. NOT NULL
+
+
+How to add constraints in Existing Table :
+------------------------------------------
+    
+   -> By using ALTER command it is possible to add constraint to existing table columns
+
+TABLE CREATION:
+---------------
+
+	
+Create table employ_db
+( empid int,
+  ename varchar(10),
+  doj date default getdate(),
+  sal money,
+  comm money,
+  deptno tinyint
+)
+
+To Add Primary Key constraint on EMPID column :
+-----------------------------------------------
+
+step1:
+------
+
+  -> Add not null constraint
+
+      Alter Table employ_db ALTER COLUMN Empid INT NOT NULL
+
+step2:
+-------
+
+   -> now add primary key constraint
+   
+          Alter Table Employ_Db ADD Primary key(Empid)
+
+Adding Check constraint :
+-------------------------
+
+  -> ADD check constraint with sal >=3000
+
+
+      Alter Table Employ_Db ADD check ( Sal>=3000 )
+
+Note: While adding constraint SQL SERVER also validate existing table data.  if existing data satisifies the       condition then cosntraint is added otherwise it returns error message
+
+WITH NOCHECK :
+--------------
+
+  -> If constraint is added WITH NOCHECK then SQL SERVER will not validate existing data, it validates only      new data.
+
+            Alter table Emp with nocheck add check ( sal>=3000 )
+
+
+Adding Foreign key constraint :
+===============================
+
+  Alter Table Employ_db ADD Foreign key (Deptno) References Dept_Mas(Deptno)
+
+Dropping Constraint :
+---------------------
+
+
+syntax:
+
+  Alter Table Employ_Db Drop Constraint <constraint_name>;
+
+Example:
+--------
+
+  Alter table medicine drop constraint CK__Medicine__6B24EA82
+
+Dropping Tables :
+----------------
+
+  Drop table dept_mas    => error
+
+  Truncate table dept_mas   => Error
+
+Note:
+------
+
+  => Primary key cannot be dropped if referenced by some FK
+
+  => Primary key column cannot be dropped if referenced by some fk
+
+  => Primary key table cannot be dropped if references by some fk
+
+  =? Primary key table cannot be trucated if referened by some fk
+
+       ** We cannot Delete Parent Table/Record if any Child Table/Records are Found
+
+DELETING RULES :
+================
+
+I. ON DELETE NO ACTION ( by default )
+  
+II. ON DELETE CASCADE
+
+III. ON DELETE SET NULL
+
+IV. ON DELETE SET DEFAULT
+
+  -> above rules are declared with foreign key constraint
+
+  -> delete rules specifies how child rows are affected if parenet row is deleted
+
+
+ON DELETE NO ACTION :
+---------------------
+
+  -> Parent record cann't be deleted if associated with child rows
+
+Example:
+--------
+
+primary key table :
+-------------------
+
+ Create table dept66(dno tinyint primary key,
+                     dname varchar(50)
+		    )
+
+ insert into dept66 values( 10, 'acc' );
+ insert into dept66 values( 20, 'res' );
+
+select * from dept66
+
+dno	dname
+---	------
+10	acc
+20	res
+
+foreign key table:
+------------------
+
+Create table emp66( eno int, ename varchar(10), dno tinyint references dept66(dno) )
+
+insert into emp66 values( 101, 'king', 10 ) ,(102, 'scott',20),(103,'allen',10 )
+
+ select * from dept66;
+
+ select * from emp66
+
+ delete from dept66 where dno=10
+
+error : The DELETE statement conflicted with the REFERENCE constraint "FK__emp66__dno__6EF57B66". The conflict         occurred in database "SQL3PM", table "dbo.emp66", column 'dno'.
+ 	The statement has been terminated.
+
+
+II. ON DELETE CASCADE :
+-----------------------
+
+  -> if parent row deleted then corresponding child rows deleted automatically
+  
+  -> ON DELETE CASCADE option wil be add at the time of FOREIGN KEY Declaration
+
+Example:
+--------
+
+Parent table:
+-------------
+
+  Create table dept66(dno tinyint primary key, dname varchar(10) )
+
+  Insert into dept66 values( 10,'acc'),(20,'res')
+
+select * from dept66;
+
+dno	dname
+---	-----
+10	acc
+20	res
+
+
+Child/Foreign Key Table 
+------------------------
+
+ Create table emp66(eno int, ename varchar(10), dno tinyint references dept66(dno) ON DELETE CASCADE )
+
+ Insert into emp66 values( 101, 'ravi', 10 ), ( 102, 'anand', 20 ), ( 103, 'praveen', 10 )
+
+ 
+Testing:
+--------
+
+select * from dept66;
+
+dno	dname
+---	-----
+10	acc
+20	res
+ 
+select * from emp66
+
+eno	ename	dno
+---	-----	---
+101	ravi	10
+102	anand	20
+103	praveen	10 
+
+** to delete parent record
+
+      Delete from Dept66 where Dno=10;
+
+output:
+-------
+
+select * from dept66;
+
+dno	dname
+---	-----
+20	res
+ 
+select * from emp66
+
+eno	ename	dno
+---	-----	---
+102	anand	20
+
+
+III. ON DELETE SET NULL :
+--------------------------
+
+ -> this option used to whenever PARENT record deleted then corresponding CHIILD record column values set to        NULLs
+
+ -> this option also will be add at the time of foreign key declaration
+
+Example:
+--------
+
+Parent table:
+-------------
+
+  Create table dept66(dno tinyint primary key, dname varchar(10) )
+
+  Insert into dept66 values( 10,'acc'),(20,'res')
+
+select * from dept66;
+
+dno	dname
+---	-----
+10	acc
+20	res
+
+
+Child/Foreign Key Table 
+------------------------
+
+ Create table emp66(eno int, ename varchar(10), dno tinyint references dept66(dno) ON DELETE SET NULL )
+
+ Insert into emp66 values( 101, 'ravi', 10 ), ( 102, 'anand', 20 ), ( 103, 'praveen', 10 )
+
+ 
+Testing:
+--------
+
+select * from dept66;
+
+dno	dname
+---	-----
+10	acc
+20	res
+ 
+select * from emp66
+
+eno	ename	dno
+---	-----	---
+101	ravi	10
+102	anand	20
+103	praveen	10 
+
+** to delete parent record
+
+      Delete from Dept66 where Dno=10;
+
+OUTPUT :
+---------
+
+select * from dept66;
+
+dno	dname
+---	-----
+20	res
+ 
+select * from emp66
+
+eno	ename	dno
+---	-----	---
+101	ravi	null
+102	anand	20
+103	praveen	null
+
+iv. ON DELETE SET DEFAULT :
+----------------------------
+
+  -> If parent record deleted then corresponding child record column values set to specified default values
+
+  -> This option also will be added at the time of FOREIGN KEY Declaration
+
+Example:
+--------
+
+Parent table:
+-------------
+
+  Create table dept66(dno tinyint primary key, dname varchar(10) )
+
+  Insert into dept66 values( 10,'acc'),(20,'res')
+
+select * from dept66;
+
+dno	dname
+---	-----
+10	acc
+20	res
+
+
+Child/Foreign Key Table 
+------------------------
+
+ Create table emp66(eno int, ename varchar(10), dno tinyint default 20 
+								references dept66(dno) ON DELETE SET DEFAULT )
+
+ Insert into emp66 values( 101, 'ravi', 10 ), ( 102, 'anand', 20 ), ( 103, 'praveen', 10 )
+
+ 
+Testing:
+--------
+
+select * from dept66;
+
+dno	dname
+---	-----
+10	acc
+20	res
+ 
+select * from emp66
+
+eno	ename	dno
+---	-----	---
+101	ravi	10
+102	anand	20
+103	praveen	10 
+
+** to delete parent record
+
+      Delete from Dept66 where Dno=10;
+
+OUTPUT :
+--------
+
+select * from dept66;
+
+dno	dname
+---	-----
+20	res
+ 
+select * from emp66
+
+eno	ename	dno
+---	-----	---
+101	ravi	20
+102	anand	20
+103	praveen	20
+
+  
+UPDATE RULES :
+--------------
+
+I. ON UPDATE NO ACTION
+
+II. ON UPDATE CASCADE
+
+III. ON UPDATE SET NULL
+
+IV. ON UPDATE SET DEFAULT
+
+
+  -> UPDATE rules are also declared wih foreign key constraint
+
+  -> These rules specifies how foreign key value is affected if primary ket value is updated
+
+Summary :
+---------
+
+ -> importance constraints
+
+ -> declaring constraints in 3 ways
+
+          i. column level     ii. table level    iii. alter level
+
+ -> Adding constraint in table level
+
+ -> Adding constraint in altel level
+
+ -> composite constraints
+
+ -> Delete rules
+
+ -> Update Rules
+
+ -> Dropping constraints
+
+
+Excercise :
+-----------
+
+
+ -> Create a Bank master table with Accno, Cname, Address, Aadharno, Mobileno, Odate, Account type and balance
+
+Validations:
+------------
+
+
+  -> Customer accno should be mandatory and doesn't allow duplicates
+
+  -> Aadhar is mandatory and it should be unique
+
+  -> Aadharno should be accepts only 12 digits only 
+ 
+  -> Mobileno is mandaotry and it should be unique
+
+  -> mobileno should be accepts 10 digits only 
+  
+  -> Opening date is system date ( today date by default )
+
+  -> account type should be accepts either 's' or 'c'
+
+  -> if account type is 's' then minimum opening balance rs.500/-
+
+  -> if account type is 'c' then minimum opening balance rs.1000/-
+
+  -> Create bank trans table with Tno, Accno, Trans. Date, Tran. type and Tamount 
+
+Validations :
+-------------
+
+  -> Tno generate automatically using IDENTITY
+
+  -> Inserting accno should be available in bank_master table
+
+  -> Trans. date is system date 
+
+  -> trans. type should be accepts either 'd' or 'w'
+
+  -> Minimum trans. amount rs.1
+
+  -> if any customer Cancel the Account then corressponding trans. should be removed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

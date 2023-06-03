@@ -1,0 +1,366 @@
+Exercises :
+-----------
+
+  -> waq to display who are joined after joining of FORD employee
+
+	Select * from emp where hiredate>(select hiredate from emp where ename='FORD')
+
+  -> waq to display name of the employee having maximum experience
+
+	select * from emp where hiredate=( select min(hiredate) from emp)
+
+  -> waq to display lastest jonining employee details
+
+	select * from emp where hiredate= ( select max(hiredate) from emp)
+
+  -> waq to display who are working in SALES dept.
+
+     	select * from emp where deptno=(select deptno from dept where dname='SALES')
+
+  -> waq to display who are working, ACCOUNT, SALES depts. and there should be joined in 1981 year
+
+  -> waq to display who are senior to KING employee
+
+	select * from emp where hiredate<(select hiredate from emp where ename='KING')
+
+  -> waq to display who are earning morethan BLAKE
+		
+	select * from emp where sal>( select sal from emp where ename='BLAKE')
+
+  -> waq to display 2nd highest salary
+
+       	select max(sal) from emp where sal < ( select max(sal) from emp )
+
+  -> waq to display 3rd highest salary
+
+ 	select max(sal) from emp where sal<( select max(sal) from emp where sal < ( select max(sal) from emp ))  
+  -> waq to display who are earning 2nd maximum salary 
+
+         select * from emp where sal=(select max(sal) from emp where sal < ( select max(sal) from emp ))
+
+  -> waq to update employe sal to max(sal) of 30th dept whose empno=7499
+
+         update emp set sal=(select max(sal) from emp where deptno=30) where empno=7499
+
+  -> waq to swap salaries whose empnos 7369 , 7499 ?  ( hint: using UPDATE with CASE )
+
+	 Update emp set sal = case empno when 7369 then ( select sal from emp where empno=7499)
+ 					 when 7499 then ( select sal from emp where empno=7369)
+                              end
+           where empno in (7369, 7499 );
+
+before swapping :
+----------------
+empno	sal
+----	---
+7369	800
+7499	1300
+
+after swaping :
+---------------
+empno	sal
+----	---
+7369	1300
+7499	800
+  
+UTI
+
+NAV			NDATE
+----			------
+13.9462			01-Sep-2021
+14.041			02-Sep-2021
+14.0723			03-Sep-2021
+14.1681			06-Sep-2021
+14.1566			07-Sep-2021
+14.231			08-Sep-2021
+14.3316			09-Sep-2021
+14.3896			13-Sep-2021
+14.4416			14-Sep-2021
+14.5028			15-Sep-2021
+14.5272			16-Sep-2021
+14.4108			17-Sep-2021
+14.2023			20-Sep-2021
+14.253			21-Sep-2021
+
+-- waq to find on which DATE MAX Nav
+
+     select Ndate from uti where nav=(select max(nav) from uti)
+
+o/p: 16-sep-2021
+
+-- waq to find on which DATE MIN NAV
+
+     select ndate from uti where nav=(select min(nav) from uti)
+
+o/p: 01-sep-2021
+
+
+ii. MULTI-ROW SUB-QUERIES :
+---------------------------
+
+  -> Sub-Query returns morethan one value is called as Multi-row sub-queries
+
+  -> In Multi-row Sub-Queries, Sub-Query outputs are compared with SPECIAL operators those are
+     IN, NOT IN ,ANY, ALL
+
+-- waq to display who are workign in SALES and RESEARCH depts.
+
+   select * from emp where deptno IN (select deptno from dept where dname='SALES' OR Dname='RESEARCH')
+
+-- Waq to display which employees are getting SALARIES morthan ALL SALESMAN salaries
+	
+	SELECT * FROM EMP WHERE SAL >ALL(Select sal from emp where job='SALESMAN')
+
+ALL Operator :
+--------------
+  
+   -> Use  ALL operqator when comparision with ALL values
+
+          WHERE X >ALL(1000,2000,3000)
+
+if X=800   => FALSE
+   x=1500  => FALSE
+   x=4500  => TRUE
+
+          WHERE X <ALL(1000,2000,3000)
+    
+if x=800  => TRUE
+   x=1500 => FALSE
+   x=4500 => FALSE
+
+
+-- waq to display who are getting SALARIES less any SALESMAN SALARIES
+
+     Select * from emp where sal <ANY( Select sal from emp where job='SALESMAN')
+
+ANY operator :
+--------------
+
+   -> Use ANY operator for comparision with alteast one value
+
+       WHERE X  >ANY( 1000,2000,3000)
+        
+
+if X=800   => FALSE 
+   x=1500  => TRUE 
+   x=4500  => TRUE 
+
+          WHERE X <ANY(1000,2000,3000)
+    
+if x=800  => TRUE 
+   x=1500 => TRUE 
+   x=4500 => FALSE
+
+
+-- WAQ To display who are getting morethan ALL MANAGER salaries
+
+-- waq to display who are earning morethan alteast one manager
+
+
+iii. CO-RELATED SUB-QUERIES :
+-----------------------------
+
+  -> In Co-related sub-queries, first Parent Query executed, depends upon output of PARENT query the INNER           QUERY will be Executed
+ 
+  -> One of the Outer query column is placed in SUB-QUERY where condition that Outer Query column is called as      Co-related Column
+        
+  -> In Corelated sub-queries if Outer Query Executes 'n' times then Inner Query also Executed 'n' times
+
+syntax:
+-------
+
+     select col1, col2,... from <table_name>
+				where col1 = ( select col3 from <table_name> where <col4=col1>)
+note: in sub-query col1 is co-related column
+
+steps :
+
+1. returns a row from outer query
+2. pass value to inner query
+3. executes inner query 
+4. inner query output passed to outer query  
+5. evualuates outer query where condition
+
+
+Example:
+--------
+
+  -- waq to display who are getting morethan their dept. avg. salaries
+
+Emp e
+----
+empno	ename	sal	deptno
+-----	-----	----	------
+7788	scott	2000	20   -
+7566	jones	3000	10   x
+7698	blake	4000	30   -
+7839	king	5000	10   -
+7902	ford	800	20   x
+7499	allen	1500	30   x
+
+deptno	avg
+20	1400
+10	4000
+30      2750
+
+
+	    7839    king   5000	     10
+ select e.empno, e.ename, e.sal, e.deptno from emp e     4000
+				   where e.sal > ( select avg(sal) From EMP where deptno=e.deptno);
+					 5000   >					  10					     
+
+ select e.empno, e.ename, e.sal, e.deptno from emp e      
+				   where e.sal > ( select avg(sal) From EMP where deptno=e.deptno);
+
+  
+
+output :
+
+7839	king	5000.00	10
+7369	smith	2850.00	20
+7566	jones	2975.00	20
+7698	blake	2850.00	30
+7844	turner	1500.00	30
+
+
+dept.wise avg. salaries :
+-------------------------
+
+10	2916.6666
+20	2308.3333
+30	1433.3333
+
+
+-- waq to display who are getting dept.wise maximum salaries and their details
+
+
+     select e.empno, e.ename, e.sal, e.deptno from emp e
+				where sal = ( select max(sal) from emp where deptno=e.deptno);
+
+-- waq to display who are getting less than their jobs maximum salaries
+ 
+     select e.empno, e.ename, e.job, e.sal, e.deptno from emp e
+		       where e.sal < ( select max(sal) from emp where job=e.job);
+
+-- waq to display working employee dept. details
+
+
+
+-- waq to display on which depts. no employees are working
+
+
+
+
+
+Emp e
+----
+empno	ename	sal	deptno
+-----	-----	----	------
+7788	scott	2000	20    
+7566	jones	3000	10    
+7698	blake	4000	30    
+7839	king	5000	10    
+7902	ford	800	20    
+7499	allen	1500	30    
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+							
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+stu_info:
+---------
+
+std_mas:
+--------
+std_id,  std_name,  class,
+
+std_address:
+------------
+std_id, hno, street, city, pincode, 
+
+std_marks:
+----------
+std_id,  maths, phys, chem, 
+
+std_grade:
+----------
+std_id, total, avg. grade, rank
+
+
+1
+.
+.
+.
+100
+
+std_prograss report
+--------------------
+
+  std_id, std_name, class, maths, phys, chem, total, avg, grade, rank
+
+
+
+

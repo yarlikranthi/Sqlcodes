@@ -1,0 +1,430 @@
+
+
+DB SECURITY :
+-------------
+
+i. LOGIN		=> provides security at server level
+
+ii. USERS		=> provides security at db level
+
+iii. PRIVILIGES 	=> provides security at table level
+
+iv. VIEWS		=> provides security at row & column levels
+
+
+SERVER(logins)
+	DATABASE(users)
+		TABLES(priviliges)
+			DATA(views)
+
+
+SCHEMA OBJECTS / DATABASE OBJECTS :
+-----------------------------------
+
+1.TABLES
+2.VIEWS
+3.SYNONYMS
+4.SEQUENCES
+5.INDEXES
+
+2. VIEWS :
+----------
+
+  => View is one of the logical/Virtual db object
+
+  => Views are created based on base table
+
+  => views are created based on SELECT statement output
+
+  => A View is a subset of a table i.e., part of the table
+
+  => View is a virtual object because it doesn't hold any data and doesn't occupy memory
+
+ => Views are created for the purpose of
+
+        i. to provide security
+
+       ii. to reduce complexity
+
+
+ => Views provides another level of security by granting specific columns and rows to users
+
+ => Views are two types
+
+      i. simple views
+
+     ii. complex views
+
+Simple views :
+--------------
+
+  -> if view created based on single table then it is called as simple views
+
+syntax:
+-------
+
+ Create view <view_name>
+         as
+ < select statement>;
+
+Example 1:
+----------
+
+  Create view v1 
+  as 
+  Select Empno, Ename, Job, Sal, Deptno From Emp
+
+=> when the above command submitted to SQL SERVER. It creates a view "v1" and stored query but not query output
+
+
+  Select * from v1;
+
+
+=> when above query submitted to sql server, it executes the query as follows
+
+         select * from ( select empno,ename,job,sal, deptno from emp )
+
+Granting permissions on view to users :
+---------------------------------------
+
+DBO :-
+
+  Grant select, insert, update, delete on v1 to MY_USER
+
+
+MY_USER :
+---------
+
+  -> My_user can do
+
+       i. select * from v1
+
+      ii. insert into v1 values(1001,'xxx','clerk',5000,10)
+
+     iii. update v1 set job='MANAGER' where empno=1001
+
+      iv. delete from v1 where empno=1001
+
+      v.  Update v1 set hiredate=getdate() where empno=1001  => error  ( can't update hiredate through view)
+
+Example 2:  ( ROW LEVEL SECURITY)
+----------------------------------
+
+DBO:-
+
+  Create view v2
+  As
+  Select empno,ename,job,sal,deptno from emp where deptno=20
+
+  select * from v2
+
+
+Grant View to my_user :
+-----------------------
+
+  GRANT SELECT,INSERT,UPDATE,DELETE on V2 to MY_USER
+
+MY_USER:
+--------
+
+  INSERT INTO V2 VALUES( 1002, 'YYY', 'MANAGER',5000,30)    => 1 row created
+
+note: above record inserted in BASE TABLE( EMP ).
+
+ select * from v2;
+
+   -- it displays only dept no.20 records
+ 
+ select * from emp;  
+
+WITH CHECK OPTION:
+------------------
+
+  -> if view created with "WITH CHECK OPTION" then any DML command through view voiolatees WHERE condition that      DML is not accepted.
+
+					or
+
+  -> By using WITH CHECK OPTION clause if inserting data statisfies view condition recored inserted otherwise      it returns constriant voilated error message
+
+
+DBO :-
+
+ Create View V3
+ AS
+ Select empno, ename, job, sal,deptno 
+ from emp
+ where deptno=20
+ WITH CHECK OPTION
+
+
+ GRANT SELECT,INSERT,UPDATE,DELETE ON V3 TO MY_USER;
+
+MY_USER:
+--------
+
+  INSERT INTO V3 VALUES( 999,'XYZ','CLERK',3000,30)   => ERROR, recort not inserted view and basetable
+
+  INSERT INTO V3 VALUES( 999,'XYZ','CLERK',3000,20)   => record Inserted views and basetable
+
+  select * from v3
+
+  select * from emp
+
+
+ii. COMPLEX VIEWS :
+-------------------
+
+  
+  => These views are created by SELECT statment contains join conditions( morethan one table),
+						group by clause or
+						having clause or
+						distinct function or
+						aggregate function or
+						expressions or
+						set operators or
+						sub-queries, etc.,
+
+ => with the help of views complex queries can be converted into simple queries
+
+Example 1:
+---------
+
+ Create view cv1
+ AS
+ select e.empno, e.ename, e.job, e.sal, d.deptno, d.dname, d.loc 
+ from Emp e Inner Jion dept d 
+ On ( e.deptno=d.deptno)
+
+=> After creating view whenever we want data from emp & dept tables instead of writing join query query write    the simple query as follows
+
+
+ selet * from cv1;
+
+ select * from cv1;
+
+ select *from cv1;
+
+
+Example 2:
+----------
+
+CREATE VIEW CV2
+AS
+Select d.dname, min(e.sal) as minsal,
+                max(e.sal) as maxsal,
+                sum(e.sal) as sumsal,
+		count(e.empno) as cnt
+From emp e inner join dept d
+      on ( e.deptno = d.deptno)
+
+  
+=> after creating view whenver we want dept.wise summary then execute the following query
+
+        select * from cv2;
+
+
+note : On complex views we cann't perform DML commands
+
+select * from information_schema.views;
+
+Dropping views :
+----------------
+
+  Drop view v1;
+
+-> Once drop the views basetables are available
+
+-> if we drop table what about views created on table ?
+
+ans. views are not dropped, view available 
+
+
+WITH SCHEMABINDING:
+-------------------
+
+  -> if view created wiht schemabinding option then SQL SERVER will not allow the user to drop basetable if      any views exists on the table
+
+  -> follow the rules to create with SCHEMABINDING option
+
+
+  i. "*" is not allowed in SELECT statment
+
+ ii. tablename should be prefixed with schema name
+
+Example:
+--------
+
+  Create view v5
+  WITH SCHEMABINDING
+  AS
+  SELECT DEPTNO, DNAME, LOC FROM DBO.DEPT
+
+testing:
+--------
+
+  Drop table Dept;     => error
+
+SYNONYMS :
+----------
+
+   => A synonym is another name or alternate name for a table or view
+
+   => Synonyms are created when table name is lengthy or complex
+
+syn: create synonym <synony_name> for <table_name>
+
+ex:  Create synonym e for emp
+
+ => After creating synonym instead of using tablename we can use synonym name in SELECT/INSERT/UPDATE/DELETE     queries
+
+       select * from e
+
+       update e set sal= sal + 100 where empno=7839
+
+    sp_rename 'emp' , 'e'   => changes original tablename from emp to e
+
+
+diff. between synonym  vs alias
+
+		synonym				alias
+		-------				------
+	     i. permanent		i. not permanent
+
+	    ii. stored in db		ii. not stored in db
+
+	   iii. scope of the synonym   iii. scope of the alias is upto the query
+                is upto the schema
+
+** to see the list of created synonyms
+
+      select * from sys.synonyms;
+
+Droping synonyms :
+------------------
+
+ Drop synonym <synonym_name>;
+
+Example:
+--------
+
+ Drop synonym e;
+
+SEQUENCE:
+---------
+
+  => Sequence is also one of the db object and used to generate sequence of numbers automatically
+
+  => By using Sequences we can auto increment column values
+
+syn:
+----
+
+Create Sequence <sequence_name>
+[Start with <value>]
+[Increment by <value>]
+[Maxvalue <value>]
+[Minvalue <value>]
+[Cycle/Nocycle] 
+
+Example:
+--------
+
+Create sequence s1
+start with 1
+increment by 1
+maxvalue 5
+
+** to use above sequence in STU_DB Table on SID column
+
+create table std_db ( sid int, sname varchar(10) )
+
+Insert into std_db values(next value for s1, 'A')
+Insert into std_db values(next value for s1, 'B')
+Insert into std_db values(next value for s1, 'C')
+Insert into std_db values(next value for s1, 'D')
+Insert into std_db values(next value for s1, 'E')
+Insert into std_db values(next value for s1, 'F')   => ERROR
+
+
+1	A
+2	B
+3	C
+4	D
+5	E
+
+Example 2:- ( calling sequence in update command )
+
+create sequence s2
+start with 100
+increment by 1
+maxvalue 1000
+
+ => use above sequence to make empno sequence
+
+       update emp set empno = next value for s2
+
+NOCYCLE/ CYCLE :
+----------------
+
+   => By default sequence created with NOCYCLE
+
+   => if sequence created with NOCYCLE then it starts from START WITH and every time value is incremented and         it generate upto MAXVALUE and after reaching maxvalue then it stops.
+ 
+   => if sequence created by using CYCLE then it starts with START WITH geenerates upto MAXVALUE and after
+      reaching MAXVALUE then it will be reset to MINVALUE.
+
+
+Example :
+---------
+
+Create sequence s3
+start with 1
+inrement by 1
+maxvalue 5
+MINVALUE 1
+CYCLE
+
+Create table student ( sid int, sname varchar(10) ) 
+
+Insert into student values ( next value for s3, 'A')
+Insert into student values ( next value for s3, 'B')
+Insert into student values ( next value for s3, 'C')
+Insert into student values ( next value for s3, 'D')
+Insert into student values ( next value for s3, 'E')
+Insert into student values ( next value for s3, 'F')
+Insert into student values ( next value for s3, 'G')
+Insert into student values ( next value for s3, 'H')
+
+selet * from student
+
+
+output:
+-------
+1	A
+2	B
+3	C
+4	D
+5	E
+1	F
+2	G
+3	H
+
+** How to restart Sequence ?
+
+Create sequence s5
+start with 1
+increment by 1
+maxvalue 1000
+
+ => After reaching 50 restart the sequence from 1 ?
+
+      Alter Sequence s5 RESTART WITH 1
+
+
+
+
+
+
+
+
+ 

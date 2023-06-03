@@ -1,0 +1,2220 @@
+ => the following components needs to be installed to work with
+ sql server.
+
+ 1 SERVER
+ 2 CLIENT 
+
+ SERVER :- 
+ ---------
+
+ => server is a system where sql server software is installed 
+    and running. Inside the server using sql server software we can 
+    create and manage database.
+
+CLIENT :- 
+---------
+
+ => client is also a system where users  can
+
+ 1 connects to server
+ 2 submit requests to server
+ 3 recieves response from server
+
+ client tool :- 
+
+  SSMS (SQL SERVER MANAGEMENT STUDIO)
+
+Download & Installation :-
+
+sql server :-
+
+1 download sql server 2017/2019
+
+https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+
+2 step by step installation of sql server
+
+   https://computingforgeeks.com/install-sql-server-developer-edition-on-windows-server/
+
+ssms :- 
+
+ 1 download ssms
+
+https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver15
+
+ 2 install ssms 
+
+ https://www.guru99.com/sql-server-management-studio.html
+
+
+
+How to connect to sql server
+----------------------------
+
+  => to connect to sql server open ssms and enter following details
+
+         server type :  Database Engine
+
+	 server name    : kfintech
+
+	 authentication : sql server authentication
+
+	 login		: sa
+		
+	 password	: 123
+ 
+   -> click on connect
+
+=> a new database is created with two files DATA FILE and LOG File
+
+-> DATA file stored data and log files stores operations
+
+
+T-SQL
+-----
+
+ -> SQL stands for Structured Query Language
+
+ -> SQL is the language used to communicate with sql server
+
+ -> user communicates with SQL SERVER By sending SQL commands is SQL Queries
+
+
+What is QUERY ?
+
+ -> Query is a command/instruction geven to sql server to perfrom some operation on databases
+
+					or
+
+  -> To requesting data from databases
+
+  -> SQL is a common language for any Relational Databases
+
+** SQL is a main language and divided into 5 sub-languages
+
+I.DDL(Data Definition Language )
+
+II. DML( Data Manipulation Language )
+
+III. DRL/DQL( Data Retrieval Language )
+
+IV. DCL ( Data Control Language )
+
+V. TCL ( Transaction Control Language )
+
+
+						SQL
+
+	DDL		DML		DRL		DCL		TCL
+	create 		insert		select		grant		commit
+        alter		update				revoke		rollback
+        drop		delete						save trasaction
+        truncate	merge
+        rename
+
+Data types :
+------------
+
+  -> Datatype is a type of information stored in memory
+
+
+					
+
+
+CHAR(size) :
+------------
+
+ -> This datatype allows alphabets and alpha-numaric values
+
+ -> it is Fixed length datatype
+
+ -> Maximum size is 8000 chars
+
+Example:
+--------
+
+ Name Char(10);  'rama' 
+
+    
+ gender char(1)
+
+  m
+  f
+
+ state_cod char(2)
+
+  ap
+  mp
+  up
+
+VARCHAR(size) :
+---------------
+
+  -> this datatype supports dynamic memory allocation
+
+  -> it accepts alphabets and alpha-numarics
+
+  -> maximum size 8000 chars
+
+  -> by using this datatype extra memory released
+
+        ex:   NAME varchar(8000);  'rama'
+
+		note: for NAME column varchar allocates only 4 bytes
+
+              PANNO VARCHAR(10);
+
+	      IFSC VARCHAR(8000);
+
+VARCHAR(MAX) :
+--------------
+
+   -> this datatype supports dynamic memory allocation
+
+  -> it accepts alphabets and alpha-numarics
+
+  -> maximum size 2gb
+
+  -> by using this datatype extra memory released
+
+        ex:   NAME varchar(10);  'rama'
+
+		note: for NAME column varchar allocates only 4 bytes
+
+              PANNO VARCHAR(10);
+
+	      IFSC VARCHAR(10);
+
+NCHAR/NVARCHAR/NVARCHAR2(MAX) :
+-------------------------------
+
+ -> These datatypes allows unicode characters data ( 0 - 65536 ) that includes all ASCII
+    chars and characters are belong to different language.
+
+Integer Types :
+---------------
+
+  -> This datatype allows numbers i.e., number without decimal part
+
+  
+	TINYINT		1 BYTE		0 - 255
+
+	SMALLINT	2 BYTES		-32768 to +32767
+
+        INT		4 bytes		
+
+	BIGINT		8 Bytes
+
+        ex: Age 	tinyint;
+	    EMPID	smallint
+	    Accno	Int
+	    Aadharno	BigInt
+
+DECIMAL(p,s) :
+--------------
+
+  -> this datatype allows numbers with decimal values
+
+          p -> precision  => total no.of digits allowed
+	 
+	  s -> scale 	=> no.of digtis after decimal
+
+   Ex: 
+	
+		Salary	Decimal(7,2);
+			       (5,2);  0 to 99999.99
+
+		5000      -> valid
+		5000.50   -> valid
+               50000.50   -> valid
+	      500000.50   -> invalid
+
+Currency types :
+----------------
+
+  => currency types are used for fileds related to money
+
+           
+         smallmoney	4 bytes	 	-214748.3648 to +214748.3647
+
+	 money		8 bytes
+
+	
+	ex:
+
+		fee	smallmoney
+		sal	money
+		bal	money
+
+
+DATE & TIME :
+-------------
+
+ DATE	 => allows only dates
+
+ TIME    => alows only time
+
+ DATETIME  => allows date and time
+
+
+=> by defualt SQL SERVER date format is YYYY-MM-DD
+
+=> by default time format is HH:MI:SS  
+
+
+	ex:  DOJ	DATE
+	     LOGIN	TIME
+	     TXN_DATE	DATETIME
+		
+
+BINARY datatypes :
+------------------
+
+  => Binary types allows multimedia object like image, audio files and video files
+
+
+	Binary  => allows binary dataupto 8000 bytes, it is recommened for fixed length
+		   fields. here extra memory is wastage
+
+	VarBinary  => allows binary data upto 8000 bytes. but, no memory wastage
+
+	VarBinary(max)  => allows binary data upto 2gb and extra bytes are released
+
+
+		ex:
+
+			photo varbinary(max);
+			sign  varbinary(5000);
+
+** How Create table in SQL SERVER DB :
+--------------------------------------
+
+Table: 
+------
+
+  -> Table is a collection of information stored in rows and columns format
+
+  -> Maximum 1024 columns are allowed and Un-limited records
+
+  -> Min. and Max. length tablename is 1 to 128 chars
+
+  -> Special Chars are not allowed only #, _ are valid
+
+  -> Every table should be start with Alphabet
+
+syntax:
+-------
+
+Create Table <table_name>
+( 
+   col1 datatype(size),
+   col2 datatype(size),  
+   .
+   .
+   .
+)
+
+
+  123emp  -  invalid
+  emp 123 -  invalid
+  emp@123 -  invalid
+  emp123  -  valid
+  emp_123  -> valid
+
+Example:
+--------
+
+  -> Create Table Emp with following sturcutre
+
+  EMP -> EMPID   ENAME   JOB    SAL  HIREDATE
+
+
+Create Table Emp
+( 
+   Empid Tinyint,
+   Ename Varchar(20),
+   Job Varchar2(20),
+   Sal Smallmoney,
+   Hiredate Date
+)
+
+
+-> create a Libray db table with the following structure
+
+      BOOK_MAS :   book_id,   book_name,   author_name
+
+
+      STOCK_DB :   book_id,   Avail_Stock
+
+
+      Book_Issue :  Tno,  Tdate,  Book_id,  Issued_books, DoI, DoR, remarks
+
+-- Create a bank master table with the following columns
+
+ACCNO
+CNAME,
+ADDRESS,
+MOBILENO,
+DOB,
+AADHARNO,
+PANNO,
+ODATE,
+CUST_PHOTO,
+CUST_SIGN,
+ACCOUNT TYPE,
+BALANCE
+
+i. CREATE command :
+-------------------
+
+   -> this command used to create a new db object
+
+           ex: tables, views, indexes, sequences, synonyms, etc.,
+
+Table :
+-------
+
+ -> table is collection of information stored in rows and columns
+
+ -> maximum 1024 columns are allowed and un-limited records per a table
+
+
+Example :
+---------
+
+  -> Create a Employe db table with Employee ID, Employee name, Date of Joining, Salary and Deptno
+
+Create Table Emp_DB
+( Emp_Id Smallint,
+  Ename Varchar(30),
+  DoJ Date,
+  Salary SmallMoney,
+  Deptno Tinyint
+)
+
+-- Create a Student Db with Student id, Studname, Address, Class, maths, phys, chem
+
+
+
+SP_HELP :
+---------
+
+  -> Used to displays Structure of the db tables
+
+syntax:
+-------
+
+SP_HELP  <TABLE_NAME>
+
+Example:
+--------
+
+ SP_HELP EMP_DB
+
+Column_name	datatype		size
+Emp_ID		smallint	 	2
+Ename		varchar		 	30
+DoJ		date		 	3
+Sal		smallmoney	 	4
+Deptno		tinyint		 	1
+
+
+INSERTING DATA INTO TABLE :
+---------------------------
+
+  -> by using "INSERT" command to insert data into tables
+
+  -> using INSERT commands we can insert data
+
+	i. single row
+
+       ii. multiple rows
+
+INSERTING single row :
+----------------------
+
+syntax:
+-------
+ 
+  Insert Into <table_name> Values( val1, val2, val3,.... )
+
+Example:
+--------
+
+  Insert Into Emp_DB Values ( 1001, 'king', getdate(), 5000, 10 ) 
+
+  Insert Into Emp_Db Values ( 1002, 'scott', getdate(), 4000, 20 )
+
+   select * from Emp_DB
+
+To Insert Multiple Records :
+----------------------------
+
+   Insert into Emp_Db Values( 1003, 'jones', getdate(), 3000, 20 ),
+			    ( 1004, 'smith', getdate(), 4000, 10 )
+
+   Select * from Emp_Db;
+
+Inserting NULLS into tables :
+-----------------------------
+
+  -> While Inserting data if we don't have any column values then NULLs are supported
+
+  -> There are two types of NULLs
+
+         i. Explicit Null
+
+        ii. Implicit Null
+
+i. Explicit Null :
+------------------
+
+  -> NULLs are inserted by user Explicitely is called as Explicit Null
+
+Example:
+--------
+
+** if we don't have salary of employee
+
+  Insert Into Emp_Db Values( 1005, 'miller', getdate(), Null, 20 )
+
+ii. Implicit Null :
+-------------------
+
+  -> Null are inserted by Oracle Implicitely is called as Implicit Null
+
+Example :
+---------
+
+** Employ has no Salary
+
+  Insert Into Emp_Db ( Emp_id, Ename, Doj, Deptno ) Values ( 1006, 'clark',getdate(), 30 )
+
+note: Rest of the columns SQL SERVER takes NULLs Implicitly
+
+NULL :
+------
+
+  -> NULL is an Un-comparable and Un-defined Value
+  
+  -> It is Not Equals to 0 and Space
+
+  -> It occupies 0 bytes memory
+
+  -> It is common for any relational databases
+
+
+UPDATE :
+--------
+
+  -> This command used modify / change Existing Tables Data
+
+Syntax:
+-------
+
+ Update <Table_name> set <col1>=<val1> [, <col2>=<val2>, ...... where <condition>];
+
+Example:
+--------
+
+ -- write a query to increment all Employee Salaries with 10%
+
+       Update Emp_Db Set Sal = Sal + Sal * 0.1
+
+ -- waq to increment 1003 employee with 20%
+
+       Update Emp_Db Set Sal = Sal + Sal * 0.2 Where Emp_id=1003
+
+ -- waq to set employee name as 'BLAKE', Salary as 5000 for empno 1005
+
+       Update Emp_db Set Ename='blake' and sal = 5000 where empno=1005
+
+ -- waq to delete all employee salaries
+
+       Update Emp_db Set Sal = NULL
+
+NOTE: To delete any column value then to use UPDATE with NULL
+
+
+DELETE :
+--------
+
+  -> This command used to Delete all Records / specified records from the table Temporarily
+
+  -> Table is Available ( Table is structure is present )
+
+  -> Rollback(Undo) Supported
+
+syntax:
+-------
+
+  Delete from <table_name> [ Where <condition> ];
+
+Example:
+--------  
+
+  Delete from Emp_db
+
+  Delete From Emp_Db Where Emp_id=1005;
+
+SELECT :
+---------
+   
+   -> 'SELECT' command is used displays data from tables
+
+   ->  Basic SELECT command operations are...
+
+              1. PROJECTION   => Selecting Specific Columns
+
+              2. SELECTION    => Selecting Specific Rows
+
+              3. JOIN   => Combining data stored in multile tables
+
+Syntax:
+-------
+
+   select * / column_list FROM <Table_name>
+					[ Where Clause/
+				          Group by clause/
+					  Having Clause /
+					  ORDER BY Clause ];
+
+=> waq to display all Employee records
+
+       Select * from Emp_Db
+
+=> Display Employ name and salary
+
+       Select Ename, Sal From Emp_db
+
+OPERATORS :
+----------
+
+  -> Arithmetic Operators:  +, -, *, /, %
+
+  -> Relational Operators: <, >, >=, <=, =, < >, !=
+
+  -> Logical Operators: AND,  OR,  NOT
+
+  -> Set Operators:  UNION, UNION ALL, INTERSECT, EXCEPT
+
+  -> Special Operators:  IN, NOT IN, BETWEEN, NOT BETWEEN, LIKE, NOT LIKE,
+                         IS NULL, IS NOT NULL, ANY, ALL, EXISTS, NOT EXISTS, PIVOT, & UNPIVOT, etc.,
+
+WHERE Clause:
+-------------
+
+  -> Used to get specific row/rows from table based on a condition 
+
+  -> WHERE is supported in SLEECT, UPDATE, DELETE, etc.,
+
+Syntax:
+-------
+
+  WHERE column_1 op column2/value
+
+
+-> if condition = true then row is selected
+
+-> if condition = false row is not selected
+
+
+-- write a query to display employee records
+
+     Select * from Emp;
+
+
+-- write query to display dept. details
+
+     Select * from Dept;
+
+-- waq to display who are working in 10th dept.
+
+     Select * from Emp Where Deptno = 10
+   
+-- waq to display who are getting salaries morethan rs.2000
+
+
+   select * from Emp Where SAL > 2000
+
+-- waq to display whoses jobs are MANAGER
+
+   select * from Emp where Job='MANAGER'
+
+-- waq to display who are joined after 81 year
+
+   select * from emp where hiredate > '1981-12-31'
+
+--waq to display who are working in 10, 20 depts.
+
+  select * from emp where deptno=10 or deptno=20
+
+compound condtions:
+--------------------
+
+  -> multiple condtions combined with AND /OR  operators is called as compound condition
+
+Truth tables :
+--------------
+
+AND
+----
+
+where    Cond1		AND		cond2		result
+	 ------				-----		------
+    
+	  T				T		T
+	  T				F		F
+	  F			 	T		F
+	  F				F		F
+
+where    Cond1		OR		cond2		result
+	 ------				-----		------
+	
+	T				T		T
+	T				F		T
+	F				T		T
+	F				F		F
+
+Where    cond1	 	NOT   RESULT
+	   T			F
+	   F			T
+
+    
+
+-- Waq to display 30th dept. salesmans
+
+Select * from Emp Where Deptno=30 AND JOB='SALESMAN'
+
+
+-- WAQ TO display who are joined before 1981 in deptno 20
+
+ select * from emp where deptno=20 and Hiredate < '1981-01-01'
+
+
+-- waq to display 10, 30 dept. Managers
+
+  Select * from Emp Where ( Deptno=10 or Deptno=30 ) and job='manager'
+
+  Operator Priorities :
+  ---------------------
+
+  Arithamtic Operator :  BODMAS rule,    {  }, (  ), /, *, +, -
+
+  Logical Operators :  NOT,  AND,  OR
+
+  ( )    -> IT overrides all operator priorites and it executes first
+
+-- waq to display clerks and managers data
+
+      Select * from Emp Where job='clerk' or job='manager'
+
+-- Waq to display to display 7788, 7369, 7902 & 7839 employee details
+
+      select * from emp where empno=7788 or empno=7369 or empno=7902 or empno=7839
+
+SPECIAL OPERATORS:
+------------------
+
+  -> by using special operators we can reduce no.of conditions in WHERE clause
+
+  -> by using special operators it improves the performance while retrieving or manipulating data
+
+IN :
+-----
+
+  -> This operator used to compares given list of values
+
+  -> It supports all Datatypes
+
+Example :
+---------
+
+-- Waq to display to display 7788, 7369, 7902 & 7839 employee details
+
+          Select * from Emp where Empno IN ( 7788, 7369, 7902, 7839 )
+
+NOT IN :
+--------
+
+   -> This operator used to compares otherthan given list of values
+
+  
+-- waq to display whose employ names are not matched with SMITH, ALLEN & FORD
+
+      Select * from Emp where ENAME NOT IN ( 'SMITH', 'ALLEN', 'FORD')
+
+-- waq to display who are not working in as CLERKs and MANAGERS
+
+      Select * from Emp where Job NOT IN ( 'CLERK','MANAGER')
+
+BETWEEN :
+---------
+
+  -> this operator used compares the values within the range
+
+ 
+-- waq to display who are getting salary 1000 to 3000 
+
+     	  Select * from Emp where Sal Between 1000  and 3000 
+
+note: 
+  * Lowerbound value should be lessthan Upperbound
+  
+  * Between operator it includes LOWER and upper bound values
+     
+NOT BETWEEN :
+-------------
+
+  -> Used to compares the values out of range
+
+-- waq to display who  not joined in 1981
+
+    select * from emp where Hiredate Not Between '1981-01-01' and '1981-12-31'
+
+
+-- WAQ to display who are working as CLERK, MANAGERs and earning salaries 2000 to 4000 and they are jonined in 
+   1981 year
+
+         select * from emp where job in ( 'clerk','manager')  and  (sal between 2000 and 4000)   
+							and   (hiredate between '1981-01-01' and '1981-12-31')
+
+
+
+
+note: In between and NOT BETWEEN operators we can place numarics and date only
+
+LIKE :
+------
+
+  -> This operator used to compares the values based on given pattern
+
+  -> It supports char values 
+
+  -> This operator supports two wild chars
+
+             i.    %   ->  one or more characters
+ 
+            ii.    _   ->  Exactly one char/value   
+
+Example :
+---------
+
+
+  -- waq to display whose names are start with 'S' char
+
+       select * from emp where ename like 's%'
+
+	   -- waq to display whose names are end with 's' char
+
+	   select * from emp where ename like '%s'
+
+	   -- waq to display whose names contains 's' char
+
+	   select * from emp where ename like '%s%'
+
+	   -- waq to display whose names 2nd char start with 'd'
+	    
+		 select * from emp where ename like '_d%'
+
+	  -- waq to display whose names contains 'll'
+
+	      select * from emp where ename like '%ll%'
+
+	-- waq to display which employee names 'a' char. contains minimum 2 times
+
+	      select * from emp where ename like '%a%a%'
+
+    -- waq to display who are joined in 1981 year
+
+	      select * from emp where Hiredate Like '1981%'
+
+	-- waq to display who are joined in january month
+
+	     select * from emp where hiredate like '%-01-%'
+
+	-- waq to display whose names last third char 'a'
+
+	     select* from emp where ename like '%a__'
+
+	NOT LIKE :
+	 
+	    -- Opposite of like operator
+	
+	-- waq to display which employee names not contains only 5 chars.
+
+	       select * from emp where ename not like '_____'
+
+	IS NULL :
+	---------
+
+	    -> This operator used to compares NULLs
+
+		 -> It supports any datatypes
+
+	-- waq to dispaly whose are not getting commission
+
+	       select * from emp where Comm IS NULL
+
+	-- WAQ to display which employee has no Boss
+
+	        select Ename from emp where mgr is null
+
+        -- waq which employee are not getting commsion then those employee to dclare comm with rs.500
+
+	        UPdate Emp set Comm=500 where comm is null
+
+	 -- waq to delete who are not getting comm
+	          
+			Delete from Emp where comm is null
+
+	IS NOT NULL :
+	-------------
+
+	   -- WAQ to display who are getting commission
+	    
+		      select * from emp where comm is not null
+
+	-- waq to transfer employes from dept no. 10 to 40
+
+	          update emp set deptno=40 where deptno=10
+
+
+SELECT statement using Expressions :
+------------------------------------
+
+-- waq to display employee names and their annual salaries
+
+      Select Ename, Sal*12 from Emp
+
+	ename		no column name
+        -----		--------------
+	smith		9600
+
+ALAIS:
+------
+
+   -> Alias is a temporary name for a given column name or table name
+
+   -> Aliases are used to declare runtime column names
+
+syntax:
+-------
+
+    Column/Expr [as] ALIAS
+
+ 
+      Select Ename, Sal*12 as Annual_sal from Emp
+ 
+     Select Ename, Sal*12 "Annual sal" from Emp
+
+** if Aliase contains morethan one word then that alaise should be placed in  "  "
+
+-- waq to declare employee netsalary based on following conditions
+
+      hra ( house rent allowance ) =  20% on sal
+			
+      da ( daily allowance)  => 10%
+
+      ta ( travel allowance ) => 8%
+
+      pf ( provided fund )  => 12%
+
+7369  smith  800
+
+ Select Empno, Ename, sal, sal*0.2 as hra, 
+                           sal*0.1 as da, 
+                           sal*0.08 as ta, 
+                           sal*0.12 as pf, 
+             sal + sal*0.2+ sal*0.1 + sal*0.08 - sal*0.12 as Netsal from Emp;
+
+
+Computed columns :
+------------------
+
+  Create Table Emp_Salary
+  ( Empno Int,
+    Ename varchar(20),
+    sal money,
+    hra as sal*0.2,
+    da as sal*0.1,
+    ta as sal*0.08,
+    pf as sal*0.12,
+    Netsal as sal+hra+da+ta-pf
+  )
+
+Inserting data :
+----------------
+
+  Insert into emp_salary ( empno, ename, sal ) values ( 1001, 'king', 5000 );
+
+  select *from emp_salary;
+
+ORDER BY CLAUSE :
+-----------------
+
+  -> order by clause displays information either ascending or decending order
+
+  -> by default order by clause displays Asending order
+
+  -> In order by clause we can morethan one column
+
+  -> Order by clause must be placed at the end of SELECT statement
+
+Example:
+--------
+
+   -- waq to display employee deptnos. ascending order
+
+              select * from emp order by deptno asc
+
+             select * from emp order by sal asc
+
+** to display decending order
+-----------------------------
+
+             select * from emp order by deptno desc
+
+	     select * from emp order by deptno, ename;
+
+             select * from emp order by 3
+
+            select * from emp order by 6 desc
+
+
+note: in above 3rd query 3 taken as column in EMP table
+
+
+STUDENT :
+---------
+
+SNO	SNAME	M	P	C
+---	------	--	--	--
+1	A	80	90	70
+2	B	60	50	70
+3	C	90	70	60
+4	D	90	80	70
+
+-- waq to display student total marks with decending order
+
+    select * from student order by (m+p+c) desc 
+
+-- waq to display student avg. marks with ascending order
+
+    select * from student order by (m+p+c)/3 asc
+
+
+Creating NEW table from Existing table( replica):
+-------------------------------------------------
+
+
+syntax:
+-------
+
+  SELECT column/* INTO <new_tablename> from <old_tableName> where <condition>
+
+-- waq to create a employ backup with using EMP
+
+     Select * INTO EMP_BACKUP from EMP
+
+NOTE : above command creates a new table with name as EMP_BACKUP and copies the rows and columns of EMP Table
+
+copying sepcific rows and columns :
+-----------------------------------
+
+   select empno, ename, job, sal, deptno INTO EMP11 From EMP where job in ('clerk','manager' )
+
+copying only structure( cols ) but not data (rows) :
+----------------------------------------------------
+
+      select * Into emp12 from emp where 1=2
+
+note: above query copies only STRUCTURE of EMP table without data
+
+DDL ( Data Definition Language ) :
+----------------------------------
+
+  i. create   ii. alter    iii. truncate   iv. drop    
+
+=> DDL commands works on database tables structures only
+
+
+ALTER Command :
+---------------
+
+  -> this command used to modify structure of the table
+
+  -> by using alter command we can do...
+
+           i. add new column/columns
+   
+          ii. drop columns
+
+         iii. modify columns
+
+ADD COLUMN :
+------------
+
+  -> this option used to add new columns into existing table
+
+syntax:
+-------
+
+  Alter Table <table_name> ADD column_name datatype(size)
+
+Example :
+---------
+
+  -- To add gender column to emp table ?
+
+         Alter Table Emp ADD gender char(1)
+
+** to add morethan one column 
+
+    Alter Table Emp ADD remarks varchar(10), mobileno int 
+
+
+note: after adding new column that column contains NULLs.  by using UPDATE command to insert data into new            columns
+
+** to insert 7369 employee gender as M( Male)
+
+       Update Emp set gender='M' where empno=7369
+
+
+DROP COLUMN :
+-------------
+
+  -> this option used to drop existing columns in table
+
+syntax:
+--------
+
+  Alter Table <table_name> DROP COLUMN <column_name>
+
+example:
+--------
+
+  Alter Tale Emp Drop Column gender
+
+** to drop multile columns 
+
+  Alter Table Emp Drop Column remarks, mobileno
+
+Modifying column :
+------------------
+
+  -> by using this option we can increase / decrease size of the column and to change datatype of  a column
+
+
+** To increase size of ename from 10 to 20:
+-------------------------------------------
+
+  Alter Table Emp ALTER COLUMN ENAME VARCHAR(20)
+
+
+  Alter Table Emp ALTER COLUMN ENAME VARCHAR(10)
+
+ENAME
+-----
+SMITH
+WARD
+MILLER  -> 6
+
+  Alter Table Emp ALTER COLUMN ENAME VARCHAR(6)
+
+* to Change datatype of a column :
+----------------------------------
+
+   Alter Table Emp Alter Column Empno INT
+
+
+TRUNCATE :
+----------
+
+  -> this command used to delete all records from the table, but structure(table) is available
+
+  -> Table will be empty
+
+  -> once truncate is executed database releases memory
+
+syntax:
+-------
+
+  TRUNCATE TABLE <TABLE_TABLE>
+
+example:
+--------
+
+  Truncate Table Emp
+
+DROP Command :
+--------------
+
+  -> this command used to drop table from database
+
+  -> it drops table structure with Data
+
+syntax:
+-------
+
+ Drop Table <table_name>
+
+Example:
+--------
+
+ Drop Table Emp
+
+
+-- Differences between Truncate and Delete
+
+
+	truncate				delete
+
+i. DDL Command			        i.  DML Command
+
+	
+ii. It deletes all records from       ii. It deletes all records /specifiec records deleted
+    the table permanently                 from the table temporarily
+
+
+iii. Table structure is present      iii. Table structure is present
+
+iv.  it will release memory	      iv. memory not released
+
+v.   we will reset the identity       v.  will not reset the identity 
+
+vi.  faster			      vi. slower
+
+
+
+Delete                                  Truncate                                     Drop 
+
+i. it deletes all records/           i. it deletes all records           i. It deletes all records permanently
+   specific records temporarily	        permanently
+
+ii. table is present                ii. table is present                ii. table not present
+
+
+
+How to Rename a Table Name/Column_name:
+---------------------------------------
+
+   -> to rename a table name/column name sqlserver provides one command Stored procedure is SP_RENAME
+
+Syntax:
+-------
+
+  SP_Rename  <old_table_name> <new_table_name>;
+
+Example:
+--------
+
+  sp_rename 'emp' , 'employees'
+
+** how to change column name :
+------------------------------
+
+  sp_rename   emp.sal  Basic_sal
+
+** How to change order of the columns inside the table
+------------------------------------------------------
+
+EMP  -> EMPNO, ENAME, JOB, MGR,HIREDATE,SAL,COMM,DEPTNO  ( SOURCE )
+
+EMP  -> EMPNO, ENAME,SAL,COMM,HIREDATE,JOB,MGR,DEPTNO   ( DESTINATION)
+
+
+create new table with name as TEMP
+----------------------------------
+
+ SELECT EMPNO, ENAME,SAL, COMM, HIREDATE, JOB, MGR, DEPTNO INTO TEMP FROM EMP
+ 
+ DROP TABLE EMP
+
+ SP_RENAME 'TEMP' , 'EMP'
+
+
+IDENTITY :
+----------
+
+  -> used to generate sequence of numbers
+
+  -> used to auto increment column values
+
+syntax:
+-------
+
+  IDENTITY(SEED, INCR);
+
+SEED  -> Start with value ( it is optional, by default it takes 1 )
+
+INCR  -> Increment value ( it is optional, by defualt it increments 1 )
+
+Example:
+--------
+
+ Create table cust( cid int Identity(100,1),
+                    cname varchar(10)
+                  )
+
+Testing :
+---------
+
+Insert into cust(cname) values ( 'ravi' )
+Insert into cust(cname) values ( 'chetan' )
+Insert into cust(cname) values ( 'praveen' )
+Insert into cust(cname) values ( 'deepak' )
+Insert into cust(cname) values ( 'chandan' )
+
+select * from cust
+
+
+adv. :
+------
+
+   -> by using IDENTITY we can eliminates duplicates & nulls
+
+
+**we will reset the identity by using TRUNCATE :
+------------------------------------------------
+
+TRUNCATE TABLE CUST
+
+Insert into cust(cname) values ( 'ravi' )
+Insert into cust(cname) values ( 'chetan' )
+Insert into cust(cname) values ( 'praveen' )
+Insert into cust(cname) values ( 'deepak' )
+Insert into cust(cname) values ( 'chandan' )
+
+select * from cust
+
+
+note: in above examples Identity values taken by database implicitel. 
+
+
+** take IDENTITY values explicitely :
+-------------------------------------
+
+Insert into cust(cid,cname) values ( 105, 'chandan' )    -- ERROR returns
+
+SET IDENTITY_INSERT CUST ON
+
+Insert into cust(cid,cname) values ( 105, 'chandan' )    -- executed
+
+Select * from cust
+
+
+BUILT-IN FUNCTIONS :
+--------------------
+
+
+  -> sql server Pre-defined functions are called as Built-in functions
+  
+  -> Built-in functions are classified into different types
+
+      i. date functions
+
+     ii. string functions
+
+    iii. mathematical/number functions
+
+     iv. conversion functions
+
+     v.  special functions
+
+    vi.  analytical functions
+
+   vii. aggregate/group functions
+
+i. Date Functions :
+-------------------
+
+ GETDATE()  :- Returns curreent date and time
+
+    select getdate()
+
+ DATEPART() :- Used to Extract Part of the date
+
+syntax:  DATEPART(interval, date )
+
+
+Example :
+---------
+
+ -- to display year In numaric format
+
+
+	yy -> it displays year from given date
+
+	      select datepart(yy,getdate())
+
+   mm  -> returns month in numaric format
+
+         select datepart(mm,getdate())
+
+   dd  -> returns date in numaric format
+   
+         select datepart(dd,getdate())
+
+  dw   -> returns day of the week
+
+         select datepart(dw,getdate())
+
+	by default sql server takes => sunday -1, monday - 2,..... saturday - 7
+
+q  -> returns quarter of the year
+
+         select datepart(q,getdate())
+
+hh   -> returns hours
+
+ select datepart(hh,getdate())
+
+mi    -> returns minutes
+
+ select datepart(mi,getdate())
+
+ss  -> returns seconds
+
+ select datepart(ss,getdate())
+
+-- waq to display who are joined in 1981,1982,1983 year
+
+     select * from emp where datepart(yy,hiredate) in ( 1981,1982,1983)
+
+-- waq to display who are joined in JAN, APR, DEC
+
+      SELECT * FROM EMP WHERE DATEPART(MM,HIREDATE) IN ( 01,04,12 )
+
+ -- WAQ TO DISPLAY WHO ARE JOINED ON SUNDAY
+
+       select * from emp where DATEPART(DW,HIREDATE)=1
+
+ -- WAQ TO DISPLAY WHICH EMPLOYEES ARE JIONED IN 2ND quarter of 1981 year
+
+        select * from emp where datepart(q,hiredate)=2 AND Datepart(yy,hiredate)=1981
+
+DATENAME() :
+------------
+
+  -> this function similar to datepart used to extract part of the date in character formats
+
+			   MM				DW
+  DATEPART		   09				02
+
+  DATENAME		   SEPTEMBER                  MONDAY
+
+Example :
+---------
+ 
+      SELECT DATENAME( MM,GETDATE()) 
+
+	  SELECT DATENAME(DW,GETDATE()) 
+ 
+ 
+ -- WAQ TO DISPLAY WHO ARE JOINED ON MONDAY
+ 
+         select * from emp where DATENAME(DW,HIREDATE)='MONDAY'
+
+   -- WAQ TO DISPLAY WHO ARE JOINED IN APRIL MONTH
+
+          select * from emp where DATENAME(MM,HIREDATE)='APRIL'
+
+07-SEP-2021
+************
+
+ --waq to display day of independance day
+
+          select datename(dw, '1947-08-15');
+
+DATEDIFF( ) :
+-------------
+
+   -> used to compares differences between two given dates
+
+syntax:
+-------
+
+   DATEDIFF(interval, start date, end date)
+
+example
+-------
+
+   Select DATEDIFF( yy, '2020-09-06', getdate() )
+  
+
+
+-- to display years from two given dates
+
+   Select DATEDIFF( yy, '2020-12-03', getdate() )
+
+-- to display months from two given dates
+
+   Select DATEDIFF( mm, '2020-09-06', getdate() )
+
+-- to display no.of days from two given dates
+
+   Select DATEDIFF( dd, '2020-09-06', getdate() )
+
+-- waq to find each employee experience in total no.of years or  months or days
+
+    select Empno, Ename, DATEDIFF( yy, hiredate, getdate() ),
+                         DATEDIFF( mm, hiredate, getdate() ),
+                         DATEDIFF( dd, hiredate, getdate() )
+		 from emp
+
+-- waq to display each employee expericne in years and months
+
+
+select Empno, Ename, DATEDIFF( mm, hiredate, getdate() )/12,
+                     DATEDIFF( mm, hiredate, getdate() )%12
+		from emp;
+
+40  -> months
+
+years  => 40/12   -> 3 years
+
+month  => 40%12   -> 4 months
+
+DATEADD() :
+-----------
+
+  -> used to add/substract days, months and years to / from a date
+
+syntax:
+-------
+
+  DATEADD(interval, int,date)
+
+example:
+--------
+
+  select dateadd(dd, 10, getdate())    => 2021-09-17
+
+  select dateadd(mm, 1, getdate())    => 2021-10-07
+
+  select dateadd(yy, 1, getdate())    => 2022-09-07
+
+
+-> waq to display employee name, doj and dor
+
+         select ename, hiredate as doj, dateadd(yy,40,hiredate) as dor  from emp
+
+-> to display today gold rate
+
+      select * from gold_rates where dateid=getdate()
+
+-> to display yesterday's gold rate
+
+      select * from gold_rates where dateid=dateadd(dd,-1, getdate())
+
+-> to display last month same date gold rate
+
+      select * from gold_rates where dateid=dateadd(mm,-1,getdate())
+
+-> to dispaly last year same date gold rate
+
+      select * from gold_rates where dateid=dateadd(yy,-1,getdate())
+
+EOMONTH(date,int ) :  
+--------------------
+ 
+   -> it returns last date of the month
+
+Example :
+---------
+
+0  -> curren month last date
+
+   select eomonth(getdate(),0)   =>  2021-09-30
+
+1  -> next month last date
+
+   select eomonth(getdate(),1)   =>  2021-10-31
+
+
+-1   -> last month last date
+
+   select eomonth(getdate(),-1)   =>  2021-08-31
+
+=> display current month 1st day
+
+=> display next month 1st day
+
+=> display current year 1st day
+
+=> display next year 1st day
+
+
+ii. String Functions :
+----------------------
+
+  -> These functions are supports character values only
+
+upper() :
+---------
+
+  -> converts any formated string to uppercase
+
+        select upper('kfintech')    
+
+O/P: KFINTECH
+
+lower():
+--------
+
+   -> converts any formated string to lowercase
+
+        select lower('KFINTECH')
+
+o/p: kfintech
+
+-- waq to display all employee names small letters
+
+     select empno, lower(ename) from emp
+ 
+-- waq to change all employee names with small letter
+
+       update emp set ename=lower(ename)
+
+LEN( ) 
+-------
+
+   -> Returns length of the string
+
+            select len('kfintech')
+
+  -- waq to display which employee names contains 5 chars
+
+          select ename from emp where len(ename)=5
+
+LEFT(string,int) :
+------------------
+
+   ->  it returns left side of the string
+
+            select left('hello welcome',5)
+ 
+ -- waq to display whose names are start with 's' char
+
+           select ename from emp where ename like 's%'
+
+		   select ename from emp where left(ename,1)='s'
+
+RIGHT(string,int) :
+-------------------
+
+  -> this function returns right of the string
+
+Example:
+--------
+
+      select right('hello welcome',7)
+
+ -- waq to display whose names are end with 's' char
+
+           select ename from emp where ename like '%s'
+
+		   select ename from emp where right(ename,1)='s'
+
+-- waq to display whose names starting and ending chars. are same
+
+            select ename from emp where left(ename,1) = right(ename,1)
+
+update emp set ename='hemanth' where empno=7788
+
+update emp set ename='archana' where empno=7902
+
+Substring( ) :
+--------------
+
+  -> used to extract part of the sting from a given string 
+
+  -> we can extract string from specific position
+
+syntax:
+-------
+
+  SUBSTRING(string,start,len)
+
+Example:
+--------
+
+ Select substring('rama krishna',1,4 )
+
+ Select substring('rama krishna',6,4 )
+
+ -- waq to display managers infor
+
+        select *from emp where substring(job,1,3)='MAN'
+
+		select *from emp where substring(job,4,3)='AGE'
+
+CHARINDEX() :
+-------------
+
+   -> RETURNS postion of the char from a given string
+
+syntax:
+-------
+
+CHARINDEX( char, string, [start])
+
+char  -> searching char from a given string
+
+string -> input string
+
+start  -> searching starting from which position of onwards
+
+Example:
+--------
+ 
+     Select charindex('o','hello welcome')
+
+	 o/p:  5
+
+	 Select charindex('o','hello welcome',7)
+
+	 o/p: 11
+
+note: by defualt searched char posistion is counting from 1st position onwards from left -> right
+
+
+-- waq to display only username from given mail ids
+
+         select left( 'king@gmail.com',charindex('@','king@gmail.com')-1 )
+
+-- waq to dislay only sub-sciber/Domain names
+
+
+king@gmail.com
+scott@yahoo.co.in
+miller@kfintech.com
+
+
+        select right( 'miller@kfintech.com',charindex('@','miller@kfitech.com') )   
+
+REPLICATE() :
+-------------
+
+   -> USED TO repeat the string for given no.of times
+
+   syntax:
+   --------
+
+      REPLICATE(string,int)
+
+Example;:
+----------
+
+   select replicate( '*',5) 
+
+  o/p: *****
+
+  select 'ename' as ename, replicate('*',len('basic_sal'))as basic_sal
+
+
+  -- waq to display your debit card no like XXXXXX3455
+
+  debit card no : 1234583455
+
+     select replicate( 'X',6 ) + RIGHT('1234583455',4) 
+
+REPLACE( ) :
+------------
+
+  -> USED TO REPLACES ONE STRING TO ANOTHER STRING
+
+syntax :
+--------
+
+  REPLACE(str1, str2, str3 ) 
+
+Example :
+---------
+
+   select replace( 'hello', 'ell', 'abc')
+
+o/p: habco
+
+   select replace('AXIS BANK','AXIS','ICICI') 
+
+o/p: ICICI BANK
+
+ select replace('AXIS BANK','A','I') 
+
+STUFF( ) :
+----------
+
+   -> this function used to replace one string with another string based on the length
+
+syntax:
+-------
+
+   stuff(string, start, len, string ) :
+
+Example :
+---------
+
+  Select stuff('hello welcome',7,4,'abc') 
+
+  o/p:  hello abcome
+
+
+iii. mathematical functions :
+-----------------------------
+
+
+  -> these functions are accepts only numaric values
+
+ABS( ) :
+--------
+ 
+   -> returns absolute value
+
+
+  select abs(-100)
+  
+  o/p: 100
+
+ power( ) :
+ ----------
+
+    -> it returns power value
+
+	      select power(2,3)
+
+o/p: 8
+
+SQRT( ) :
+----------
+
+  -> It returns sqrt value
+
+         select sqrt(25)
+o/p : 5
+
+   select sqrt(-625) 
+
+o/p: error
+
+
+   select sqrt(abs(-625) )
+
+   o/p: 25
+
+SQUARE( ) :
+------------
+
+   -> SQUARE OF GIVEN VALUE
+
+Example:
+---------
+
+  SELECT SQUARE(4) 
+  
+O/P: 16
+
+SIGN( ) :
+---------
+
+  -> Returns if given input value is +ve then returns 1
+									 -ve then returns -1
+									 zero then returns 0
+
+				select sign(100) 
+
+				o/p: 1
+
+
+				select sign(-100) 
+
+				o/p: -1
+
+				select sign(0) 
+
+				o/p: 0
+
+		ROUND( ) :
+		-----------
+
+		     -> This function used to round number to integer or decimal places based on the average
+		syntax:
+		--------
+
+		   ROUND(number, decimal places, [optional])
+
+		examples:
+		---------
+
+		    select round( 123.456,0)         -- 4 >=5  ( false   -> 0 is added to integer part)
+
+			o/p: 123
+
+			select round( 123.789,0)        -- 7>=5  ( true  -> 1 is added to integer part)
+
+			o/p: 124
+
+					select round( 123.769,1)        -- 6>=5  ( true  -> 1 is added  to before digit)
+
+			o/p: 123.8
+
+
+					select round( 123.739,1)        -- 3>=5  ( flase -> 0 is added  to before digit)
+
+			o/p: 123.7
+
+
+						select round( 123.739,2)        -- 9>=5  ( true -> 1 is added  to before digit)
+
+			o/p: 123.74
+
+
+             select round( 123.67856,3)
+
+			 o/p: 123.679
+
+			 select round(123.45,-1)       -- 3>=5  ( flase, 0 added to before digit)
+
+			o/p: 120
+
+	note: once pass argument value -1 then it rounded integer part
+
+			 select round(127.45,-1)       -- 7>=5  ( true, 1  added to before digit)
+
+			o/p:  130
+
+	note: once pass argument value -1 then it rounded integer part
+
+				 select round(168.45,-2)       --  6>=5  ( true, 1  added to before digit)
+
+			o/p: 200
+
+					 select round(0786.45,-3)       -- 7>=5  ( true, 1  added to before digit)
+
+			o/p: 1000
+
+	-- waq to display each employee daily wages
+
+	       select empno, ename, sal, round(sal/30,0) as daily_wages from emp
+
+  note: once give +ve value (1, 2, .. ) then it rounded Fractional part,
+
+        once give -ve value ( -1, -2...) then it roundex integer part
+
+
+CEILING :
+---------
+
+select ceiling(3.1)
+
+o/p: 4
+
+FLOOR() :
+---------
+
+  -> this function always rounded to lowest value
+ 
+ select floor(3.7)
+
+ o/p: 3
+
+ CONVERTION FUNCTIONS :
+ ----------------------
+
+   -> These functions can convert one datatype to another datatype temporarily
+
+   -> SQL SERVER provided two types conversion functions
+
+              i. CAST
+
+			  ii. CONVERT
+i. CAST ( ) :
+-------------
+
+  -> This function converted any datatype to destination format
+
+  example:
+  ---------
+
+     select cast( 3.9 as int )
+
+	 o/p: 3
+
+	 select cast(567.43 as int)
+
+	 o/p: 567
+
+ Example 2:
+ ----------
+
+ +   -> used to concant multiple strings or arguments
+
+            select 'rama' + ' krishna' + ' raju' 
+
+	-- waq to display following format output
+
+	       i. mr.smith is working as a clerk
+
+		   ii. mr.smith is working as a clerk and getting salary rs.800
+
+
+     select 'Mr.' + ename + ' is working as a  ' + job from emp
+
+	 select 'Mr.' + ename + ' is working as a  ' + job + '  and getting salary rs. ' + cast(sal as varchar)  from emp
+
+	 select 'Mr.' + ename + ' joined in ' + cast(hiredate as varchar) from emp
+
+CONVERT( ) :
+------------
+
+  -> This function converts any DATE / NUMBER values into different formats
+
+SYNTAX:
+-------
+
+  CONVERT( Target_datatype, source_expr)
+
+     select convert( int, 30.15)
+
+Examples:
+---------
+
+ without century	with century(yyyy)	standard	output
+  1				101	      101(mm/dd/yyyy)  1( mm/dd/yy)
+
+  2			        102								102(yyyy.mm.dd)  2( yy.mm.dd)
+
+  3					103							    103(DD/MM/YYYY), 3( DD/MM/YY)
+
+  4					104								104(DD.MM.YYYY)  4( DD.MM.YY)
+
+  5					105								105(DD-MM-YYYY)  5( DD-MM-YY)
+  
+  6					106								106(DD MON YYYY) 6( DD MON YY)
+
+  7					107								107(MON DD YYYY) 7( MON DD YY)
+
+  8					108								108 or 8 ( HH:MI:SS ) 
+
+  9					109								109 (MON DD YYYY HH:MI:SS:MILLISEC) 7( MON DD YY HH:MI:SS:MILLISEC)
+
+  10				110								110( mm-dd-yyyy), 10 ( mm-dd-yy )
+
+  11				111								111(yyyy/mm/dd),  11( yy/mm/dd )
+
+  12				112								112(YYYYMMDD),12(YYMMDD)
+
+  13				113								113(DD MON YYYY HH:MI:SS:MS), 13( DD MON YY HH:MI:SS:MS)
+  
+  14				114								HH:MI:SS:MS
+  
+  20				120								120(YYYY-MM-DD HH:MI:SS),20(YY-MM-DD HH:MI:SS)
+
+  21				121								121(YYYY-MM-DD HH24:MI:SS), (YY-MM-DD HH24:MI:SS)						
+  
+    select convert(varchar,getdate(), 121)			
+		
+   select convert(varchar,getdate(), 102)
+
+   select convert(varchar,getdate(), 103)
+
+   select convert(varchar,getdate(), 104)
+
+   select convert(varchar,getdate(), 105)
+
+   -- WAQ TO DISPLAY EMPLOYEE DATE OF JOINING AS dd-mm-yyyy
+
+             select empno, ename, convert(varchar, hiredate,101), sal, deptno from emp
+
+
+TO CONVERT NUMBER to char format :
+----------------------------------
+
+SMALL MONEY OR MONEY STYLES :
+-----------------------------
+
+ 0  -> No commas every three digits to the left of the decimal part, and two digits to the rightside of the decimal part(default)
+
+  select empno, ename, convert(varchar, sal, 0 ) from emp
+
+ 1  -> Commas every three digits to fhe left of the decimal part, and two digits to the right of the decimal part
+
+  select empno, ename, convert(varchar, sal, 1 ) from emp
+
+2  -> NO commas every three digits to the left of the decimal point, and four digits to the right of the decimal part
+
+  select empno, ename, convert(varchar, sal, 2 ) from emp
+
+note: Above formats are executed on Small Money or Money datatypes only
+
+SPECIAL FUNCTIONS:
+------------------
+
+
+ISNULL( ) :
+-----------
+
+   -> This function used to perform arithmatic operations by using NULLs
+
+   -> this functions accepts two parameters
+
+syntax:
+-------
+
+ISNULL(arg1, arg2) :
+--------------------
+
+  -> if arg1 is null then arg2 is executed otherwise arg1 output
+
+example:
+--------
+
+
+SPECIAL FUNCTIONS :
+-------------------
+
+select 100 /null 
+
+ 
+ select isnull( 100,200 )
+
+ o/p: 100
+  
+ select isnull( null,200 )
+
+ o/p: 200
+
+
+ -- waq to display each employee net salary
+
+      netsal = sal + comm
+
+   select empno, ename, job, sal, isnull(comm,0), sal + isnull(comm,0) as netsal, deptno from emp
+
+empno	sal		comm	nsetsal
+7788	800		null	800
+
+-- waq to display employ no, ename, sal, comm & deptno.  if comm = null the to display 'N/A'
+ 
+        select empno, ename, sal, isnull(convert(varchar,comm),'N/A') as comm, deptno from emp
+
+ISNUMARIC( ) :
+--------------
+
+   -> IF EXPR IS NUMARIC THEN RETURNS 1
+    
+   -> IF EXPR IS NOT A NUMARIC THEN REURNS 0
+   
+SYNTAX:
+-------
+
+ISNUMERIC(Expr)
+
+Example:
+--------
+
+  select isnumeric(100)
+
+  O/P: 1
+
+  select isnumeric('HAI')
+
+  O/P: 0
+
+  ISDATE( ) :
+  -----------
+    
+	  -> if  expr is date then returns 1
+
+	  -> if expr is not a date then returns 0
+
+syntax
+-------
+
+ISDATE(Expr)
+
+Example:
+--------
+
+  select isdate(getdate())
+
+o/p: 1
+
+
+  select isdate(100)
+
+o/p: 0
+
+ANALYTICAL FUNCTIONS :
+----------------------
+
+RANK(), DENSE_RANK() :
+---------------------
+
+   -> Both functions are used to calculate ranks
+
+   -> Raking is based on column values
+
+   -> For Rank function data must db base columns
+
+RANK( ) :
+----------
+
+   -> This function used to generate ranks of columns data. while generating ranks if any ranks are same then it takes a gap
+   
+   -> To generate ranks column values should be placed on ORDER BY 
+
+Syntaxes :
+----------
+
+ RANK() OVER ( ORDER BY COLUMN_NAME ASC/DESC )
+
+ STUDENT
+ --------
+ STUDNO		TOTAL		RANK
+ -------	-----		----
+ 101		490			1
+ 102		480			2
+ 103		480			2
+ 104		430			4
+ 105		340			5
+
+ -- WAQ TO display ranks of the employees based on their salaries highest
+
+         select empno, ename, sal, RANK() OVER( ORDER BY SAL DESC) AS RANK FROM EMP
+
+		 select empno, ename, sal, RANK() OVER( ORDER BY SAL ASC) AS RANK FROM EMP
+
+DENSE_RANK( ) :
+----------------
+
+   -> This function used to generate ranks of columns data. while generating ranks if any ranks are tie then consequtive ranks are genrated
+   
+   -> To generate ranks column values should be placed on ORDER BY 
+
+Syntaxes :
+----------
+
+ DENSE_RANK() OVER ( ORDER BY COLUMN_NAME ASC/DESC )
+
+ STUDENT
+ --------
+ STUDNO		TOTAL		RANK
+ -------	-----		----
+ 101		490			1
+ 102		480			2
+ 103		480			2
+ 104		430			3
+ 105		340			4
+
+ -- WAQ TO display ranks of the employees based on their salaries highest
+
+        select empno, ename, sal, DENSE_RANK() OVER( ORDER BY SAL DESC) AS RANK FROM EMP
+
+        select empno, ename, sal, DENSE_RANK() OVER( ORDER BY SAL ASC) AS RANK FROM EMP
+
+
+
+
+    

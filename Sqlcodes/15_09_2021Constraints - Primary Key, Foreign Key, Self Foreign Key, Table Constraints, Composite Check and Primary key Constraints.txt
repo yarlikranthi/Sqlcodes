@@ -1,0 +1,390 @@
+V. PRIMARY KEY Constraints ( UNIQUE + NOT NULL ) :
+-------------------------------------------------
+
+ -> It is one of SQL SERVER integrity constraint
+
+ -> Once add Primary key constraint to any column by defualt SQL SERVER Databases added two constraints
+      i. UNIQUE  and   ii. NOT NULL
+
+ -> Primary key constraint doesn't accept Duplicates & NULLs
+
+ -> In Table only One column supported PRIMARY KEY.  To primary key constraint to morethan one column then we     can UNIQUE + NOT NULL to other columns
+
+
+         primary key = UNIQUE + NOT NULL
+
+ -> if Table Contains PRIMARY KEY constraint that table is called as PARENT TABLE / MASTER TABLE / INDEPENDENT      TABLE
+
+Example :
+---------
+
+-- create a dept. master table with deptno, dept. name and location
+
+validations :
+-------------
+
+  -> deptno column vlaue is mandatory
+
+  -> deptno. column should not be accept duplicates
+
+  -> dept. name is mandatory
+
+  -> location is mandatory
+
+Table Creation :
+-----------------
+
+ Create table Dept_Mas( Deptno Tinyint Primary Key,
+                        Dname Varchar(10) Not Null,
+                        Loc Varchar(10) Not Null
+                      )
+
+
+Testing :
+---------
+
+ Insert into Dept_mas values( 10, 'Acc', 'Hyd' )
+ Insert into Dept_mas values( 20, 'Res', 'Sec' )
+ Insert into Dept_mas values( 30, 'Fin', 'Chennai' )
+ Insert into Dept_mas values( 40, 'Admin', 'Banglore' )
+ Insert into Dept_mas values( 40, 'IT', 'Banglore' )     => Error
+ Insert into Dept_mas values( 50, NULL, 'Banglore' )     => Error
+ Insert into Dept_mas values( NULL, 'it', 'Banglore' )     => Error
+
+select * from dept_mas
+
+Deptno(pk)	Dname	Loc
+-----		-----	----
+10		Acc	Hyd
+20		Res	Sec
+30		Fin	Chennai
+40		Admin	Banglore
+50		it	sec
+
+
+ Employee : Empid    Ename   Job   	Sal   Deptno(fk)   
+             1001    king    manager	5000	10
+	     1002    scott			20
+	     1003    jones			50   ->  not accepted
+						20  
+						60
+						50   -> accepted 
+	    1010				NULL 
+
+VI. FOREIGN KEY Constraint( REFERENCES ) :
+------------------------------------------
+
+  -> This constraint is used to establish relationship between two tables of columns or same of table columns
+
+  -> To Add Foreign key constraint Other Table ( Referenced table ) column contains( referenced columns)           containt either Primary or Unique Constraint
+
+  -> if table contains Foreign key constraints that table is called as TRANS. TABLE / CHILD TABLE / DEPENDENT      TABLE
+
+  -> Foreign key constraint allows duplicates & Nulls
+
+Example :
+---------
+
+  -- create a employe table with employee no, employee name, salary and deptno
+
+Validations :
+--------------
+
+  -> Recruiting employee deptno should be available in the Organization
+
+Table Creation :
+----------------
+
+  Create table Employ_Db( Empno Int,
+			  Ename Varchar(10),
+			  Salary Money,
+			  Deptno Tinyint  REFERENCES Dept_mas(Deptno)
+			)
+
+
+Testing :
+---------
+ 
+Insert into employ_db values( 1001, 'king', 5000, 10 )
+
+Insert into employ_db values( 1002, 'scott', 4000, 20 )
+
+Insert into employ_db values( 1003, 'jones', 4500, 10 )
+
+Insert into employ_db values( 1004, 'smith', 800, 50 )   => error 
+
+Insert into employ_db values( 1004, 'smith', 800, 60 )   => Error
+
+Insert into employ_db values( 1004, 'smith', 800, NULL )
+
+
+
+select * from dept_mas
+
+Deptno(pk)	Dname	Loc
+-----		-----	----
+10		Acc	Hyd
+20		Res	Sec
+30		Fin	Chennai
+40		Admin	Banglore
+
+
+SELECT * FROM EMPLOY_DB  
+
+empno	ename	salary  deptno
+------  -----	------	------
+1001	king	5000.00	10
+1002	scott	4000.00	20
+1003	jones	4500.00	10
+1004	smith	800.00	NULL
+
+Example 2 :
+-----------
+
+  -> Create a customer master table with customer id, customer name, address, mobileno and mail id 
+
+Validations :
+-------------
+
+  -> customer id is mandatory and should not be allow duplicates
+
+  -> mobileno should be unique
+
+  -> mobileno should be accepts only 10 digits
+
+  -> mail id should be '@' and end with '.com', '.co.in'
+
+** Create a order table with order id, order date, itemname, date of delivery, customer id and remarks
+
+Validations :
+-------------
+
+  -> Order id should be unique and mandatory
+
+  -> order date is system date
+
+  -> customer id should be available in customer master table
+
+
+Table Creation :
+----------------
+
+Create table cust_mas( cid int primary key,
+                       cname varchar(10),
+		       address varchar(20),
+		       mobileno bigint 	Unique  check( len(mobileno)=10 ),
+                       mail_id varchar(20) Check ( mail_id like '%@%' and ( mail_id like '%.com' or 
+									    mail_id like '%.co.in') 
+                                                  )
+		     )
+
+Create Table Order_db( Ord_id int Primary key,
+                    ord_date date Default Getdate(),
+                    item_name varchar(20),
+                    DoD Date,
+	            Cid Int REFERENCES cust_mas(cid)
+		    Remarks varchar(20)
+		  )
+
+Testing :
+---------
+
+Cust_Mas
+--------
+Cid	Cname	Address		Mobileno 	 mail_id
+---	-----	-------		-------- 	---------
+c1	ravi	hyd		9000994005	ravi@gmail.com
+c2	anand	sec		9000994006	anand@gmail.com
+
+c1	kiran	chennai		9000994007	kiran@yahoo.co.in   => Error ( invalid cid)
+c3	kiran	chennai		900099400	kiran@yahoo.co.in   => Error ( invalid mobileno)
+c3	kiran	chennai		9000994007	kiran@yahoo.co.     => Error ( invalid mail id)
+
+
+ORDER_DB
+--------
+ord_id		ord_date	item_name	DoD		Cid		Remarks
+------		--------	---------	-----		-----		-------
+ord1		2021-09-15	samsung mobile	2021-09-21	c1		no
+ord1		2021-09-15	LG TV		2021-09-25	c5		no     => Error ( invalid cid)
+
+
+Excercise:
+----------
+
+ -> create a bank master table with accno, cname, address, aadharno, mobileno, odate, account type, balance
+
+validations:
+------------
+
+  -> account no is mandatory and should not be allow duplicates
+
+        ex: sbi1, sbi2,....
+
+  -> aadhar no should be accepts 12 digits & it should be unique
+
+  -> Mobileno shoould be accepts 10 digits and it should be unique
+
+  -> openning date is system date
+
+  -> account type should be accepts either 's' or 'c'
+
+  -> Minimum opening balance rs.500/-
+
+
+ -> Create a bank_trans table with Tno,Accno, trans. date, trans. ttype and trans. amount
+
+Validations :
+-------------
+
+  -> tno should be generate automatically
+
+  -> Account no should be available in Bank master table
+
+  -> Trans. date is today date
+
+  -> Trans. type should be accepts either 'd' or 'w'
+
+  -> Minimum trans. amount rs.1
+
+Other Examples:  
+---------------
+
+Dept:	deptno(pk)	dname		loc
+
+
+Emp:	Empno(pk)	Ename		Sal		Deptno(fk)
+
+
+Shift:	Shiftid(pk)	Empno(fk)
+
+
+Task :	Task_id(pk)	Tname
+
+
+Trans:  Tno(pk)		Empno(fk)	Deptno(fk)	Shiftid(fk)	Task_id(fk)	Tdate	  Status
+
+
+** SELF FOREIGN KEY :
+---------------------
+
+  -> Foreign key constraint is referenced with same table of Primary key constraint is called as Self Reference
+     or self Foreign key
+
+Example :
+---------
+
+  -> Create a employee table with employee id, employee name, manager id and salary
+
+Validations:
+------------
+
+  -> Employee id should be Unique and Not Null
+
+  -> Assigning Manager id should be available in the organization
+
+Table creation:
+---------------
+
+  Create table Employ( Empid Int Primary key,
+                       Ename Varchar(10),
+		       Manager_id Int REFERENCES Employ(Empid),
+		       Salary Money
+		     )
+
+
+Testing :
+---------
+
+Insert into employ values(1001, 'anand', null, 50000)
+Insert into employ values(1002, 'praveen',1001, 20000)
+Insert into employ values(1003, 'deepak',1002,  10000)
+Insert into employ values(1004, 'sampath',1005, 25000)   => error
+
+Empid	ename	manager_id	salary
+-----	-----	----------	-------
+1001	anand	NULL		50000.00
+1002	praveen	1001		20000.00
+1003	deepak	1002		10000.00
+
+
+How to add constraints TABLE LEVEL :
+------------------------------------
+
+  -> Constraints are added after declaring all columns at the time of table creation is called as TABLE LEVEL        constraints
+
+Syntax:
+-------
+
+ Create table <table_name>( col1 datatype(size),
+			    col2 datatype(size),
+			    .
+			    .,
+		              constraint( col1[, col2, ... ])
+		          )
+
+Check constraint :
+------------------
+
+  -> Create a medicine table with medicine id, medicine name, MFD_DATE, EXP_DATE
+
+Validation :
+------------
+
+   -> Expired Date should be > Manufactured date
+
+Table creation:
+---------------
+
+ Create table Medicine( Mid varchar(10), 
+                        MName varchar(15), 
+                        Mfd_date date, 
+                        Exp_date date,
+                            CHECK( exp_date > mfd_date )
+		      )
+
+Testing :
+----------
+
+insert into medicine values( 'm1', 'paracetmal',getdate(), '2022-10-31')
+insert into medicine values( 'm2', 'painkiller',getdate(), '2021-09-07')   =>Error
+
+
+Composite Primary key :
+-----------------------
+
+ -> To Primary key constraint to morethan one column is called as composite Primary key constraint
+
+ -> In Composite primary key constraint data is compared with Pairwise 
+
+Example:
+--------
+
+  -> Create a product master table with Company id, Product id, Pname
+
+Validations :
+-------------
+
+  -> Cid and Pids are mandatory
+
+  -> Cid and Pids pair should not be repeated
+
+
+prod_mas
+--------
+
+cid		pid		pname		pk(cid,pid)
+----		----		------
+c1		p1		Tea
+c1		p2		Coffee
+c2		p1		Tea
+c1		p1		Soaps   => Invalid record
+  
+
+
+
+
+
+
+
+

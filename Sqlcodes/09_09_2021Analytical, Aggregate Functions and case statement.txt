@@ -1,0 +1,282 @@
+  09-SEP-2021
+--------------
+
+select  * from emp order by deptno
+
+
+select empno, ename, sal, deptno , dense_rank() over ( partition by deptno order by sal desc ) as rank from emp
+
+-- to generate ranks with JOB WISE
+
+
+select empno, ename, sal, JOB, deptno , dense_rank() over ( partition by JOB order by sal desc ) as rank from emp
+
+ROW_NUMBER( ) :
+---------------
+
+  -> It Returns record number after sorting
+
+  syntax:
+  --------
+
+     ROW_NUMBER() OVER( ORDER BY COL ASC/DESC)
+
+ EXAMPLE:
+ --------
+
+    SELECT EMPNO, ENAME, SAL, ROW_NUMBER() OVER ( ORDER BY EMPNO ASC) AS RNO FROM EMP
+
+
+	SELECT EMPNO, ENAME, SAL, ROW_NUMBER() OVER ( ORDER BY SAL DESC) AS RNO FROM EMP
+
+AGGREGATE FUNCTIONS/GROUP FUNCTIONS / MULTI-ROW FUNCTIONS :
+-----------------------------------------------------------
+
+    -> Group functions can campare mutliple values and return single value output
+
+MAX( ) :
+---------
+
+    -> This function returns maximum value
+
+	          select max(sal) from emp
+
+MIN( ):
+--------
+
+    -> this function returns minimum value
+
+	         select min(sal) from emp
+
+-- waq to display senior most employee date of joining/ first employee date of joining
+
+            select min(hiredate) from emp
+
+--waq to dispaly lastestemployee date of joining
+
+            select max(hiredate) from emp
+
+SUM( ) :
+---------
+
+     -> It returns total sum of values
+
+	          select sum(sal) from emp
+
+-- waq to round employee sum of salaries with hundereds
+
+             select round( sum(sal), -2)  from emp
+
+-- waq to display sum of salary with the following format 
+ 
+                --  29,025.00
+
+		select convert( varchar, sum(sal) , 1 ) from emp
+
+-- waq to display running totals
+
+sal				output
+----			-------
+800				800
+1600			2400
+3000			5400
+1500			6900
+
+  select empno, ename, sal, sum(sal) OVER( ORDER BY EMPNO ASC) AS RUNNING_TOTALS FROM EMP
+
+AVG( ) :
+----------
+
+       -> It returns avg. value
+
+	           select AVG(Sal) from emp
+
+			   Select ROUND( AVG(SAL),0) FROM EMP
+
+			   SELECT CAST (AVG(SAL) AS INT) FROM EMP 
+
+note: SUM & AVG. function are NUMARIC FUNTIONS
+
+COUNT( ):
+----------
+
+   -> This fucntion used to count no.of values / no.of records from a given table
+
+           select count(empno) from emp
+
+		   select count(deptno) from emp
+
+		    select count(comm) from emp
+
+		   select * from emp
+
+note:  once pass argument as COLUMN_NAME then COUNT Function IGNORES Nulls. To display Excat No.of Recordes
+
+               select count(*) from emp
+
+			   
+               select count(1) from emp
+
+			   
+               select count(2) from emp
+
+DISTINCT( ) :
+-------------
+
+    -> THIS FUNCTION ELIMINATES DUPLICATES
+
+	         SELECT DISTINCT(DEPTNO) FROM EMP
+
+Example 
+-------
+TABLE NAME : TABLE_A
+---------------------
+COLUMNNAME : COLUMN1
+			 10
+			 NULL
+			 1
+			 0
+			 NULL
+			 7
+			 NULL
+			 1
+			 8
+			 NULL
+			 9
+			 0
+	-- What is output of the following queires
+	 
+	       select count(column1) from table_a;
+
+		   o/p:8
+
+		   select count( distinct(column1) ) from table_a;
+
+		   o/p: 6
+
+		  select count(*) from table_a;
+
+		  o/p: 12
+
+
+note: COUNT(COLUMNAME) => IGNORES NULLS( IT EXCLUDES NULLS)
+      COUNT(*)  => IT INCLUDES NULLS
+
+
+
+-- WAQ TO display howmany employees are joined in 1981 year
+
+       select count(*) From Emp Where Hiredate like '1981%'
+
+	   select count(*) From Emp Where DATEPART(YY,Hiredate)=1981
+
+-- WAQ TO DISPLAY WHO ARE JOINED 2ND QUARTER OF 1981 YEAR
+
+        select count(*) From Emp Where DATEPART(Q,HIREDATE)=2 AND HIREDATE LIKE '1981%'
+
+-- WAQ TO DISPLAY IN DEPT.NO. 10 HOWMANY EMPLOYEES WORKING
+
+         SELECT COUNT(*) FROM EMP WHERE DEPTNO=10
+
+-- WAQ TO DISPLAY who are joined in on MONDAY
+        
+		 select count(*) from emp where DATEPART(DD,HIREDATE)=2
+
+         select count(*) from emp where DATENAME(DW,HIREDATE)='MONDAY'
+
+1.
+
+-- WAQ TO DISPLAY MAXIMUM SALARY EMPLOYEE NAME
+
+       SELECT * FROM EMP
+	   
+	   SELECT ENAME FROM EMP WHERE SAL=MAX(SAL)    => ERROR
+
+
+NOTE: AGGREGATE FUNCTIONS ARE NOT ALLOWED IN WHERE CLAUSE.  THEY ARE ALLOWED ONLY IN SELECT, HAVING CLAUSES. To        overcome this problem to USE SUB-QUERIES
+
+2.     SELECT COL1, COL2 FROM TABLE_NAME
+
+Rule : no.of values return by col1 must be equals to no.of values return by col2.
+
+example:
+--------
+
+     select ename, max(sal) from emp      => INVALID
+	        -----  -------
+			14       1
+
+   select ename,   ROUND(SAL,-1) from emp      => VALID
+	      -------  ------------
+			 14        14
+
+   select ROUND(SAL,-1), MAX(SAL) from emp      => INVALID
+          -------------  ---------
+			14              1
+  
+   select min(sal), max(sal) FROM EMP        ==> VALID
+
+   select min(sal), max(sal) FROM EMP        ==> VALID
+
+CASE STATEMENT:
+---------------
+
+  -> CASE statement is similar to IF-THEN-ELSE
+
+  -> CASE statement is similar to SWITCH Case
+
+  -> CASE statments are two types
+
+		I. Simple CASE statement
+
+		II. Searched CASE statement
+
+I. SIMPLE CASE :
+----------------
+
+  -> To use simple case, case condition is based on '=' operator
+
+syntax :
+--------
+
+CASE Expr
+WHEN value1 then return expr1
+WHEN value2 then return expr2
+WHEN value3 then return expr3
+.
+.
+.
+ELSE return expr
+END
+
+=> TO display enames, job ?
+
+if job=clerk    => worker
+if job=manager   =>boss
+if job=president  => bigboss
+others jobs   => employees
+
+SELECT ENAME, JOB,
+       CASE JOB 
+	   WHEN 'CLERK' Then 'Worker'
+	   WHEN 'MANAGER' Then 'Boss'
+	   WHEN 'PRESIDENT' Then 'BigBoss'
+	   ELSE 'Employee'
+	   END AS JOB
+	FROM EMP
+
+
+
+
+
+
+
+
+  
+
+
+
+   
+
+
+

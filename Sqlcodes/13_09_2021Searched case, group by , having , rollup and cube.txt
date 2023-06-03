@@ -1,0 +1,424 @@
+
+CASE STATEMENT:
+---------------
+
+  -> CASE statement is similar to IF-THEN-ELSE
+
+  -> CASE statement is similar to SWITCH Case
+
+  -> CASE statments are two types
+
+		I. Simple CASE statement
+
+		II. Searched CASE statement
+
+I. SIMPLE CASE :
+----------------
+
+  -> To use simple case, case condition is based on '=' operator
+
+syntax :
+--------
+
+CASE Expr
+WHEN value1 then return expr1
+WHEN value2 then return expr2
+WHEN value3 then return expr3
+.
+.
+.
+ELSE return expr
+END
+
+=> TO display enames, job ?
+
+if job=clerk    => worker
+if job=manager   =>boss
+if job=president  => bigboss
+others jobs   => employees
+
+SELECT ENAME, JOB,
+       CASE JOB 
+	   WHEN 'CLERK' Then 'Worker'
+	   WHEN 'MANAGER' Then 'Boss'
+	   WHEN 'PRESIDENT' Then 'BigBoss'
+	   ELSE 'Employee'
+	   END AS JOB
+	FROM EMP
+
+Example 2 :
+-----------
+-- WAQ to display Employee details and corresponding each employee working dept. dname
+
+	Select Empno, Ename, Job, Deptno,
+	       CASE Deptno
+		   WHEN 10 THEN 'ACCOUNTING'
+		   WHEN 20 THEN 'RESEARCH'
+		   WHEN 30 THEN 'SALESMAN'
+		   WHEN 40 THEN 'OPERATIONS'
+		   ELSE 'OTHER'
+		   END AS DNAME
+		FROM EMP
+
+
+II. SEARCHED CASE :
+-------------------
+
+  => USE SEARCHED case statement  WHEN condition is not based on '='
+
+
+ SYNTAX:
+ -------
+ CASE
+ when <cond1> then return <expr1>
+ when <cond2> then return <expr2>
+ .
+ .
+ else return expr
+ END
+
+ -- WAQ TO display Employee Salary Status Based given conditions
+
+ IF SAL >=5000 then Excellent 
+ if Sal >=3000 then Very Good 
+ if Sal >=2000 then Good 
+ if  Sal < 2000 then Poor
+
+ SELECT EMPNO, ENAME, SAL, DEPTNO,
+        CASE
+		WHEN SAL>=5000 THEN 'EXCELLENT'
+		WHEN SAL>=3000 THEN 'VERY GOOD'
+		WHEN SAL>=2000 THEN 'GOOD'
+		ELSE 'POOR SALARY'
+		END AS SALARY_STATUS
+	FROM EMP
+
+
+-- WAQ to display STUDENT GRADE
+
+i. step1: create student table
+
+ii. step2 : insert values into student table
+
+iii. write your query and display grade
+
+sample table :
+--------------
+sno		sname	s1	s2	s3		total
+----	------	---	---	---		------
+1		king	90	90	80
+2		scott	45	60	50
+3		jones	60	70	40
+
+
+IF TOTAL >=180 THEN 'FIRST'
+IF TOTAL >=150 THEN 'SECOND'
+IF TOTAL >=120 THEN 'THIRD'
+ELSE PASS
+
+
+-- to display dept.wise sum of salaries
+
+select sum(sal) from emp
+
+GROUP BY :
+----------
+
+  -> This clause main functionality to convert Ordinary columns into Grouped Columns
+
+  -> if any ORDINARY COLUMN retrieved along with AGGREGATE Functions(min,max,sum,avg,count,etc.,) then to use GORUP BY Clause
+
+  -> Whenever an ordinary column retrieved along with AGGREGATE functions then all ordinary columns must be placed after GROUP BY clause
+  
+  -- to display dept.wise sum of salaries
+
+  EMP
+  ----
+  EMPNO		ENAME		SAL	DEPTNO
+  -----		-----		----	------
+  7839		KING		5000	10
+  7788		JONES		3000	20
+  7698		BLAKE		3000	30
+  7902		FORD		2000	10     
+  7369		SMITH		2500	30
+  7499		ALLEN		3500	20
+  7521		WARD		1500	10
+
+   GROUP BY DEPTNO 
+
+  10	8500
+  20	6500
+  30	5500
+
+ Examples:
+ ---------
+
+   -- waq to display dpet.wise sum of salaries
+
+      SELECT DEPTNO, SUM(SAL) FROM EMP GROUP BY DEPTNO
+
+	-- waq to display each dept. min and maximum salaries
+
+	   SELECT DEPTNO, MIN(SAL), MAX(SAL) FROM EMP GROUP BY DEPTNO
+
+	-- waq to display JOB wise min , max and sum of salaries
+
+	    SELECT JOB, MIN(SAL), MAX(SAL), SUM(SAL) FROM EMP GROUP BY JOB
+
+     -- WAQ to display in each dept. howmany employees are working
+
+	    select deptno, count(*) from emp group by deptno
+
+    -- waq to display yearwise howmany employees are joined
+
+	    select datepart(yy,hiredate) ,count(*) from emp group by datepart(yy,hiredate)
+	
+	1980   1
+	1981   10
+	.	
+	.
+
+	-- waq to display month wise howmany employees are joined
+
+	    select datepart(mm,hiredate) ,count(*) from emp group by datepart(mm,hiredate)
+
+     -- waq to display each quater howmany employees are joined
+
+	    select datepart(q,hiredate) ,count(*) from emp group by datepart(q,hiredate)
+
+    -- waq to display dept.wise with job.wise min salaries
+
+10	clerk	800
+20	clerk	1300
+30	clerk	900
+10	manager 3000
+.
+.
+.
+.
+            select deptno, job, min(sal) from Emp Group by Deptno, Job Order by DEPTNO
+
+
+OTHER EXAMPLES :
+----------------
+
+-- waq to display in JULY month MIN and MAX NAV values
+
+     select min(nav), max(nav) from UTI WHERE DATEPART(MM,FDATE)=07
+ 
+ -- WAQ TO DISPLAY monthwise MIN and MAX NAV values in 2021
+
+      select DATEPART(MM,FDATE) AS MONTH_WISE, min(nav) AS MIN_NAV,max(nav) AS MAX_NAV from UTI 
+				              WHERE DATEPART(YY,FDATE)=2021 GROUP BY DATEPART(MM,FDATE)
+
+											  
+-- waq to display in JULY month MIN and MAX NAV values
+
+     select min(nav), max(nav) from UTI WHERE DATEPART(MM,FDATE)=07
+ 
+ -- WAQ TO DISPLAY monthwise MIN and MAX NAV values in 2021
+
+      select DATEPART(MM,FDATE) AS MONTH_WISE, min(nav) AS MIN_NAV,max(nav) AS MAX_NAV from UTI 
+						     WHERE DATEPART(YY,FDATE)=2021 GROUP BY DATEPART(MM,FDATE)
+
+
+
+HAVING clause :
+---------------
+
+		-- waq to display in which dept. morethan 3 employees are working
+
+			select deptno, count(*) from emp group by deptno where count(*)>3     => ERROR
+
+NOTE: ->  WHERE Clause supports to compare ORDINARY COLUMN VALUES. WHERE Not suppoted to compare GROUP COLUMN VALUES / GROUP FUNCTION 
+          OUTPUTS.  
+
+	  -> WHERE CLAUSE SUPPORTS ONLY BEFORE GROUP BY CLAUSE
+
+HAVING <Condition> :
+---------------------
+
+   -> this clause is used to compare Group Column values / Group Function Outputs
+
+   -> It is Valid After GROUP BY Clause
+
+Example:
+---------
+
+   Select Deptno, count(*) from Emp group by deptno HAVING count(*)>3
+
+   -- waq to display in Which jobs Minimum salary > Rs.2000
+
+          SELECT JOB, MIN(SAL) FROM EMP GROUP BY JOB HAVING MIN(SAL)>2000
+
+   -- Waq to display dept.wise no.of employees where deptno in 10, 20 and no.of employees >3
+
+        select deptno, count(*) from emp where deptno in ( 10, 20 ) group by deptno having count(*)>3
+
+    -- Waq to display  dept.wise total salaries where deptno in 10, 20 and total salary > 10000
+
+	     select deptno, sum(sal) from emp where deptno in ( 10, 20 ) group by deptno having sum(sal)>10000
+
+Exercise :
+----------
+
+TABLE NAME : PERSONS
+NAME	AGE	GENDER	ADDR		CITY	STATE
+----	---	-----	----		----	-----
+KING	36	M	Ameerpet	Hyd	TS
+.
+.
+.
+
+-- waq to display state wise population ?
+
+-- to display gender wise population
+
+-- display age group by wise population
+
+-- display statewise population for the states of AP, TG, KA, MP, UP and total papulation > 5 crores
+
+-- display statwise and gender wise total papulation
+
+
+ROLLUP and CUBE Functions( OLAP Functions) :
+--------------------------------------------
+
+ROLLUP :
+--------
+
+  -> IT IS EXTENSION TO GROUP BY CLAUSE
+
+  -> ROLLUP Function displays Sub-Totals and Grand Total
+
+  -> if 'n' no.of columns placed in ROLLUP there n+1 sub-total combinations comes
+
+-- waq to display dept.wise sub total and grand total
+
+     Select Deptno, Sum(sal) from Emp Group by Rollup(Deptno)
+
+	 select Deptno, Job, Sum(sal) from Emp group by Rollup(Deptno, Job )
+
+Output displays like i. Dept.wise with Job wise sum of salaries
+                    ii. Only Dept.wise Sum of salaries
+				   iii. Grand total
+
+	-- WAQ to display in each dept. no.of employes and grand total
+
+	 Select Deptno, count(*) as No_of_emps from Emp Group by Rollup(Deptno)
+
+CUBE :
+-------
+
+  -> It is Extension to ROLLUP
+
+  ->  Cube displays all possibile combinations of dimenstions sub-totals and grand total
+
+  -> if 'n' no.of columns listed in the CUBE there will be 2n sub-total combinations comes
+
+Example :
+---------
+     
+  select deptno, job, sum(sal) from emp group by cube(deptno,job)  order by deptno    
+
+note: output comes like...
+ 
+	  i. jobwise sub-totals
+	  ii. dept.wise sub-total
+	  iii. dept.wise with jobwise sub-totals
+	  iv. grand total
+
+
+SALES
+------
+sid	sdate	prod_id		item_id		qty	amount
+----	-----	-------		------		---	------
+
+
+
+-> to display today item id wise sub-total amount and grand total
+
+
+-> to display today prod id wise sub-total amount and grand total
+
+
+-> to display today itemid and prod id wise sub-total amount and grand total
+
+
+-> to display today item id wise howmany items are sold output and grand total
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+   
+
+
+
+
+  
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

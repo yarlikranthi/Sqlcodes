@@ -1,0 +1,457 @@
+-- WAQ to display STUDENT GRADE
+
+i. step1: create student table
+
+ii. step2 : insert values into student table
+
+iii. write your query and display grade
+
+Table creation:
+---------------
+
+ Create table student( sno tinyint, sname varchar2(15), s1 decimal(6,2), s2 decimal(6,2), s3 decimal(6,2),
+		       total decimal(7,2) )
+
+ Insert into student values ( 1, 'king', 90, 90, 80, null );
+ Insert into student values ( 2, 'scott', 45, 60, 50, null );
+ Insert into student values ( 3, 'jones', 60, 70, 40, null );
+
+ update student set total = s1 + s2 + s3;
+
+ select * from student;
+
+Query :
+-------
+
+  select sno, sname, 
+         case total
+         when total >=180 then 'First'
+         when total >=150 then 'Second'
+         when total >=120 then 'Third'
+	 else  'Pass'
+       End as Grade
+  From student;
+   
+sample table :
+--------------
+sno		sname	s1	s2	s3	total
+----	------	---	---	---		------
+1		king	90	90	80
+2		scott	45	60	50
+3		jones	60	70	40
+
+
+IF TOTAL >=180 THEN 'FIRST'
+IF TOTAL >=150 THEN 'SECOND'
+IF TOTAL >=120 THEN 'THIRD'
+ELSE PASS
+
+
+TABLE NAME : PERSONS
+NAME	AGE	GENDER	ADDR		CITY	STATE
+----	---	-----	----		----	-----
+KING	36	M	Ameerpet	Hyd	TS
+.
+.
+.
+
+-- waq to display state wise population ?
+
+   Select State, count(*) from persons group by state;
+
+-- to display gender wise population
+
+    select gender, count(*) from persons group by gender;
+
+-- display age group by wise population
+
+    select age, count(*) from person group by age order by age;
+
+-- display statewise population for the states of AP, TG, KA, MP, UP and total papulation > 5 crores
+
+     select state, count(*) from persons where state in ( 'AP', 'TG', 'KA', 'MP', 'UP' )
+				group by state having count(*) > 50000000 order by state;
+   
+-- display statwise and gender wise total papulation
+
+       select state, gender, count(*) from persons 
+			group by state, gender order by state, gender;
+OUTPUT:
+-------
+
+AP	F	 90000
+AP	M	100000
+TS	F	 99990
+TS	M	110000
+
+
+					CONSTRAINTS
+					***********
+
+ -> Constriant is a pre-defined rule, that rule is applied on db columns at the time of table creation or 
+    after Table Creation
+
+ -> Constraints are activated whenever DML commands are performed
+
+ -> Constraints are used Restrict User Defined Conditions or Business Rules
+
+ -> Constraints are used to Restrict Invalid data into DB Tables based on Client Requirement
+
+TYPES OF CONSTRAINTS :
+----------------------
+
+  -> SQL SERVER supports 6 types of constraints
+
+  I. NOT NULL Constraint
+
+ II. UNIQUE Constraint
+
+III. DEFAULT Constraint
+ 
+ IV. CHECK Constraint
+
+ V. PRIMARY KEY Constraint
+
+ VI. FOREIGN KEY Constraint
+
+
+  -> Constraints are added to columns there are three methods
+
+           i. column level
+
+          ii. table level
+
+         iii. alter level
+
+i. column level :
+-----------------
+
+  -> Constraints are added to next to colum_name at the time table creation is called as column level           constraint
+
+Syntax:
+-------
+
+  Create Table <table_name>( column1 datatype(size) constraint,
+			     column2 datatype(size) constraint,
+			     .
+                             .
+                           );
+
+ii. Table Level constraints :
+-----------------------------
+
+  -> Constraints are added to After Declaring all columns at the time of Table creation is called as Table      Level Constraints
+
+syntax:
+-------
+
+  Create table <table_name>( column1 datatype(size),
+			     column2 datatype(size),
+			      .
+			      .
+                              ,
+                                 Constraint ( column1 [, column2,...] )
+			   );
+
+iii. Alter Level Constraints :
+------------------------------
+
+    -> After Table creation to add constraints to db columns is called as ALTER LEVEL Constraints
+
+syntax:
+-------
+
+    ALTER TABLE <table_name> ALTER COLUMN <column_name> CONSTRAINT;
+
+
+i. NOT NULL Constraint :
+------------------------
+
+  -> NOT NULL constraint doesn't accept NULLs
+
+  -> if any column value is mandatory on that columns we can add NOT NULL constraint
+
+dis. adv:
+----------
+
+   -> It allows duplicates
+
+
+Example :
+---------
+
+  -> Create a employee db table with Employee id, Employee name & salary
+
+Validations :
+-------------
+
+  -> Employee id column value is mandatory
+
+Table creation:
+---------------
+
+ Create Table Employ( Empid Int NOT NULL,
+                      Ename varchar(10),
+                      Sal Money
+		    )
+
+Testing :
+---------
+
+Insert Into Employ Values( 1001, 'king', 5000 )
+
+Insert Into Employ Values(1002, 'scott', 4000 )
+
+Insert Into employ Values( NULL, 'jones',2000 ) 
+
+Insert Into Employ Values( 1002, 'Allen', 3000 )
+
+select * from Employ
+
+EMPID	ENAME	SALRY
+-----   ------- -------
+1001	king	5000.00
+1002	scott	4000.00
+1002	Allen	3000.00
+
+
+ii. UNIQUE Constraint :
+-----------------------
+
+  -> This constraint avoids duplicate values i.e., duplicate values are not allowed
+
+  -> Maximum each each every table contains one key column on that column we can UNIQUE Constraint
+
+
+Example :
+---------
+
+  -- create a student db table with student id, student name & class
+
+Validations :
+-------------
+
+  -> student id should not be allow duplicate values
+
+  -> student name is mandatory
+
+Table creation:
+---------------
+
+  Create table Student( Std_id tinyint Unique,
+			Sname varchar(10) Not Null,
+			Class Varchar(10)
+                      )
+
+Testing :
+---------
+
+Insert into Stud_db Values ( 1, 'anand', 'xi')
+
+Insert into Stud_db Values (2, 'ravi', 'xi')
+
+Insert into Stud_db Values ( 1, 'kumar', 'xi')   => ERROR
+
+Insert into Stud_db Values ( NULL, 'kumar', 'xi')    
+
+Insert into Stud_db Values ( NULL, 'archana', 'xi')  => ERROR   
+
+Note : Unique constraint allows  only 1 NULL
+
+SELECT * FROM STUD_DB
+
+Std_id	std_name	class
+------	--------	-----
+1	anand		xi
+2	ravi		xi
+NULL	kumar		xi
+
+** How to Add Two different constraint to Single column :
+---------------------------------------------------------
+
+Example:
+--------
+
+  -> create a employ db with employee id, employee name
+
+validations :
+-------------
+
+   -> Employee id is mandatory
+
+   -> Employee id should not be allow duplicates
+
+Table Creation:
+----------------
+
+  Create Table Emp_DB( Empid Int Not Null UNIQUE,
+		       Ename Varchar(10)
+		     )
+
+
+Testing :
+----------
+
+ Insert into emp_db values ( 1001, 'king')
+
+ Insert Into emp_db values ( 1002, 'scott' )
+
+ Insert Into emp_db values ( NULL, 'jones' )   => Error
+
+  Insert Into emp_db values ( 1001, 'jones' )  => Error
+
+  select * from emp_db
+
+empid	ename
+-----	-----
+1001	king
+1002	scott
+
+III. DEFAULT Constraint :
+-------------------------
+
+  -> This constraint used to take specified default value
+
+  -> if any column value is fixed then to use DEFUALT constraint
+
+Example :
+---------
+
+  -- Create Employee db table with Employee id, Employee name, Date of joining and salary
+
+Validations:
+------------
+
+   -> Employee date of joing is today date 
+
+Table creation :
+---------------
+
+  Create Table Employ_Db ( Empid Int, 
+			   Ename Varchar(10),
+			   Doj Date DEFAULT getdate(),
+			   Sal Money
+                         )
+
+Testing :
+----------
+
+  Insert into Employ_Db ( Empid, Ename, Sal ) Values ( 1001, 'king' , 5000 )
+
+  Insert into Employ_Db ( Empid, Ename, Doj, Sal ) Values ( 1002, 'scott' , '2021-09-13', 5000 )
+
+  Insert into Employ_Db ( Empid, Ename, Doj, Sal ) Values ( 1002, 'scott' , null, 5000 )
+
+  select * from employ_db
+
+empid   ename    doj            sal
+-----	-----	-----		----
+1001	king	2021-09-14	5000.00
+1002	scott	2021-09-13	5000.00
+1002	scott	NULL		5000.00
+
+IV. CHECK Constraint :
+----------------------
+
+  -> This constraint used to check given condition.  if given conditions is TRUE then record insered into db      table otherwise it returns constraint error message
+
+syntax:
+-------
+
+    CHECK ( <condition> )
+
+Example :
+---------
+
+  -> create a employ db table with empid, employee name & salary
+
+validations :
+-------------
+
+  -> Minimum Employee salary rs.3000/-
+
+Table creation :
+----------------
+
+    create table Emp123( Empno Int,
+		       Ename varchar(50),
+		       Salary Money Check ( salary >=3000 )
+                     )
+Testing :
+---------
+
+Insert Into Emp123 values ( 1001, 'king', 5000 )
+
+Insert Into Emp123 values ( 1002, 'scott',2500 )    => Error
+
+Insert Into Emp123 values ( 1002, 'scott',NULL )    
+
+SELECT * FROM EMP123
+
+empid	ename	salary
+-----	-----	------
+1001	king	5000.00
+1002	scott	NULL
+
+Other Examples :
+----------------
+  
+Validations :
+-------------
+
+  -> Gender should be accepts 'm' or 'f' 
+
+        Gender char(1) check ( Gender In( 'm','f' ) )
+
+  -> pwd must be min 8 chars
+
+        Pwd varchar(50) check ( len(pwd)>=8 )
+
+  -> trans. amount should be multiples of 100s
+
+        Trans_amt money check ( trans_amt%100 = 0 )
+
+  -> email should be contain '@'
+	   should be endwith '.com' or '.co.in' or '.in'
+
+        email varchar(50) check ( email like '%@%' 
+					and
+				 ( email like '%.com'
+					 or 
+				  email like '%.co.in' 
+					or
+                                  email like '%.in' )
+				) 
+Excercises 1:
+------------
+
+  -- Create a book master table book id, book name & author name
+
+Validations :
+-------------
+
+  -> Book Id is mandatory 
+
+  -> Book Id should not be allow duplicates
+
+  -> Book Name is Mandatory
+
+  -> Author Name is Mandatory
+
+Excercises 2:
+-------------
+
+   -> Create a stock master table with Tno, Stock date , Book Id, No.of Books
+
+Validations :
+-------------
+
+  -> Trans. no is mandatory & it should be unique
+
+  -> Stock is today date
+
+  -> Book id is mandatory
+
+  -> Min. No.of books should be allow 10
+
+

@@ -1,0 +1,353 @@
+-- write a stored procedure to create a New user account
+
+** create a user details table with user id, user name, password, role
+
+Validations:
+------------
+
+  -> user id should be generate automatically
+
+        ex: u1, u2, u3,....
+
+  -> User name is capital letters
+
+  -> Minimum length of password is 6 chars
+
+  -> Password should be start with an alphabet
+
+  -> Enter password and confirm password should be same
+
+  -> role should be accept ADMIN, EMPLOY, CUSTOMER
+
+Table creation :
+----------------
+
+Create table user_details( user_id varchar(10),
+                           user_name varchar(20),
+			   password varchar(20),
+			   role varchar(10)
+			 )
+
+Sequence for to generate user ids :
+-----------------------------------
+create sequence uid_seq
+start with 1
+increment by 1
+
+Procedure :
+-----------
+
+Create or Alter Procedure user_reg_proc
+@user_name varchar(20), @password varchar(20),  @cnf_password varchar(20), -- king123
+@role Varchar(10), @status varchar(100) output
+                  as
+   if len(@password)<6 
+       set @status = 'Minimum Password Length is 6 chars.'
+   else if ascii( substring(@password,1,1) ) not between 65 and 90  
+				and 
+	ascii( substring(@password,1,1) ) not between 97 and 122 
+           set @status = 'Password should be start with an Alhabet'
+   else if @password != @cnf_password 
+          set @status = 'Passwords are not matched.'
+   else if @role not in ( 'admin','employ','customer') 
+        set @status = 'Invalid role....'
+   else
+    begin
+     Insert into user_details values ( 'u' + cast( next value for uid_seq as varchar), upper(@user_name),       @password, @role)
+     set @status = 'User created successfully.'
+    end
+
+
+calling procedure :
+-------------------
+
+VALID DATA :
+------------
+
+declare @status varchar(100)
+execute user_reg_proc 'king', 'king123','admin',@status output
+print @status
+
+
+declare @status varchar(100)
+execute user_reg_proc 'scott', 'scott123','customer',@status output
+print @status
+
+select * from user_details
+
+u2	KING	king123		admin
+u3	SCOTT	scott123	customer
+
+
+INVALID DATA :
+--------------
+                      
+declare @status varchar(100)
+execute user_reg_proc 'jones', '123jones','customer',@status output
+print @status
+
+output:
+------
+
+Password should be start with an Alhabet
+
+declare @status varchar(100)
+execute user_reg_proc 'jones', 'jones','customer',@status output
+print @status
+
+output:
+-------
+
+Minimum Password Length is 6 chars.
+
+
+declare @status varchar(100)
+execute user_reg_proc 'jones', 'jones123','guest',@status output
+print @status
+
+output:
+-------
+   Invalid role....
+
+
+declare @status varchar(100)
+execute user_reg_proc 'jones', 'jones123','jones12', 'guest',@status output
+print @status
+
+
+output:
+-------
+
+Passwords are not matched.
+
+
+-- Write a stored procedure to input username and password and return status
+
+
+Create or Alter Procedure login_proc
+@user_name varchar(10), @password varchar(20), @status varchar(100) output    
+                         as
+ Declare @cnt tinyint
+ Select @cnt = count(*) from user_details where user_name=@user_name and password = @password
+ if @cnt=1 
+     set @status = 'Login Successfully'
+ else
+     set @status = 'Invalid Username/Password'
+ 
+ calling procedure :
+ -------------------
+
+DECLARE @STATUS VARCHAR(100)
+EXECUTE LOGIN_PROC 'KING','king123',@status output
+print @status
+
+output:
+-------
+Login Successfully
+
+DECLARE @STATUS VARCHAR(100)
+EXECUTE LOGIN_PROC 'KING','king',@status output
+print @status
+
+output:
+-------
+Invalid Username/Password
+
+
+Another Logic :
+---------------
+
+Create or Alter Procedure login_proc
+@user_name varchar(10), @password varchar(20), @status varchar(100) output    
+                         as
+ if EXISTS( Select * from user_details where user_name=@user_name and password = @password)
+    set @status = 'Login Successfully'
+ else
+     set @status = 'Invalid Username/Password'
+ 
+calling procedure :
+-------------------
+
+DECLARE @STATUS VARCHAR(100)
+EXECUTE LOGIN_PROC 'KING','king123',@status output
+print @status
+
+output:
+-------
+Login Successfully
+
+DECLARE @STATUS VARCHAR(100)
+EXECUTE LOGIN_PROC 'KING','king',@status output
+print @status
+
+output:
+-------
+Invalid Username/Password
+
+
+Excercise :
+-----------
+
+** Create a bank_mas table with accno, cname, acc_type, opening date and balance
+
+validations :
+-------------
+
+** write a stored procedure to create a new acccount creation
+
+  -> account no. should be generate automatically
+
+          ex: sbi1, sbi2, sbi3,...
+
+  -> if account type is 's'( savings ) then minimum opening balance rs.500/-
+
+  -> if account type is 'c' ( current ) then minimum opening balance rs.1000/-
+
+  -> opening date is system date
+
+  -> if account type should be accepts either 's' or 'c'
+
+
+-> write a stored procedure to debit amount  ( accno, amt )
+
+
+-> write a stored procedure to credit amount ( accno, amt )
+
+** Procedures using DEFAULT Arguments :
+---------------------------------------
+
+  -> While calling the procedure if we not passing any value to parameter by default Procedures takes specified      Default value
+
+  -> Only INPUT parameter mode variables we can declare default value
+
+Example :
+---------
+
+  -- procedure for to insert data into dept. table
+
+Create or alter procedure dept_proc
+ @deptno tinyint, @dname varchar(15) = 'unknown', @loc varchar(15) = 'unknown'     
+                        as
+ Insert into dept values( @deptno, @dname, @loc );
+ print 'record inserted'
+
+Calling procedure :
+-------------------
+
+Execute Dept_proc 50, 'Maths', default
+
+select * from dept
+
+10	ACCOUNTING	NEW YORK
+20	RESEARCH	DALLAS
+30	SALES	CHICAGO
+40	OPERATIONS	BOSTON
+50	Maths	Hyd
+50	Maths	unknown
+
+Execute Dept_proc 60, default, 'Hyd'
+
+
+Notations :
+-----------
+
+  -- while calling procedure to pass parameter values by using corresponding positions / by using formal      argument names
+
+
+  -> Procedures are supprts two types of notations
+
+           i. positional notation
+
+          ii. named notation
+
+i. positional notations :
+-------------------------
+
+  -> while calling the procedure to pass parameter values according corresponding parameter positions is called      as Positional notations
+   
+  -> By default all procedures are calling this method only
+
+ex:
+
+  Execute Dept_proc 50, 'Maths', 'Hyd'
+
+ii. Named Notations :
+---------------------
+
+  -> while calling the procedures to pass parameter values by using Formal argument names is called as Named      Notations
+  
+  Execute Dept_proc @dname='Maths', @loc='Hyd', @deptno=50
+
+
+II. USER DEFINED FUNCTIONS :
+----------------------------
+
+  -> According to client requirement developer/user write with his own function name and with own logic is      called as USER DEFINED FUNCTIONS
+
+  -> A function is also a named T-SQL block that accepts some input performs a task
+
+  -> User defined functions should be return a value by using RETURN statement
+
+  -> Functions are created 
+
+         1. to compute a value
+
+         2. to fetch value from db
+
+  -> SQL Server Functions are two types
+
+      i. Scalar valued Functions ( SVF )
+
+     ii. Table valued functins ( TVF )
+
+
+i. Scalar valued Functions ( SVF ) :
+------------------------------------
+
+  -> if function returns one value then it is called as scalar valued function
+
+syn:-
+
+  CREATE or ALTER FUNCTION <Function_name> ( Parameters ) RETURNS <datatype>
+                               As
+  Begin
+   statements;
+   Return <value>
+  End
+
+-- Write a user defined function to find given no. is even or odd
+
+Create or Alter Function Evenodd( @Num int )
+            Returns varchar(20)
+                 as
+Begin
+  declare @res varchar(50)
+  if @Num%2 = 0 
+      set @res = 'Even'
+  else
+     set @res = 'Odd'
+	return @res
+End 
+
+calling functions :
+-------------------
+
+ Select dbo.evenodd( 100 ) 
+
+ Select dbo.evenodd( 27 )
+
+
+
+
+
+
+ 
+
+
+
+
+ii. Table valued functins ( TVF ):
+----------------------------------
+
+  
+  

@@ -1,0 +1,405 @@
+
+-- write a program to process bank transactions(W/D)
+
+Table Creation
+--------------
+
+Create table bank_mas( accno varchar(10), cname varchar(15), Bal money)
+
+Insert into bank_mas values( 'sbi1', 'kiran', 4000 ), ('sbi2', 'pavan', 1500 )
+
+select * from bank_mas
+
+Program:
+--------
+
+Declare @acno varchar(10), @type char(1), @amt money, @bal money
+set @acno='sbi1'
+set @type ='w'
+set @amt = 1000
+if @type='w' 
+begin
+   select @bal = bal from bank_mas where accno=@acno;
+   if @amt > @bal
+      print 'In-sufficient Balance & Your Withdraw power is rs.' +  cast(@bal as varchar)
+   else
+    begin
+      Update bank_mas set bal = bal - @amt where accno = @acno;
+      print 'Transaction completed successfully.'
+    end
+end
+else if @type='d' 
+   begin
+    update bank_mas set bal = bal + @amt where accno = @acno;
+    print 'Transaction Successfully Completed.'
+   end
+  else
+   print 'Invalid Transaction Type'
+
+output:
+-------
+
+sbi1	kiran	3000.00
+sbi2	pavan	1500.00  
+
+
+Looping control structures :
+----------------------------
+
+   -> the statements are executes 'n' no.of times until given condition is true/false
+
+i. while loop :
+---------------
+
+  -> T-SQL supports only one loop that is WHILE LOOP
+
+syn:-
+
+WHILE( cond. )
+Begin
+  statments;
+End
+
+=> if cond = true loop continues
+
+   if cond = false loop terminated
+
+Example:
+--------
+
+  -- write a aprogram to print natural numbers from 1 to 10
+
+Declare @x Int = 1
+While(@x <= 10 )
+Begin
+ Print @x
+ set @x = @x + 1
+End
+
+ -- write a program to print 1 to 20 even numbers
+
+Declare @x Int = 2
+While(@x <= 20 )
+Begin
+ Print @x
+ set @x = @x + 2
+End
+
+
+-- write a display sum of  1 to 10 numbers
+
+
+-- write t-sql program to display 1 to 10 in reverse order
+
+
+declare @x int =10
+while( @x>=1)
+Begin
+  print @x
+  set @x = @x - 1
+End
+
+
+-- t-sql for to print 2021 calendar
+
+Declare @d1 date, @d2 Date
+set @d1 = '2021-01-01'
+set @d2 = '2021-01-31'
+While( @d1 <= @d2 )
+Begin
+ print Cast(@d1 as varchar ) + '        ' + Datename(dw,@d1)
+ set @d1 = Dateadd(dd,1,@d1) 
+End
+
+OUTPUT :
+--------
+
+2021-01-01        Friday
+2021-01-02        Saturday
+2021-01-03        Sunday
+2021-01-04        Monday
+2021-01-05        Tuesday
+2021-01-06        Wednesday
+2021-01-07        Thursday
+2021-01-08        Friday
+2021-01-09        Saturday
+2021-01-10        Sunday
+2021-01-11        Monday
+2021-01-12        Tuesday
+2021-01-13        Wednesday
+2021-01-14        Thursday
+2021-01-15        Friday
+2021-01-16        Saturday
+2021-01-17        Sunday
+2021-01-18        Monday
+2021-01-19        Tuesday
+2021-01-20        Wednesday
+2021-01-21        Thursday
+2021-01-22        Friday
+2021-01-23        Saturday
+2021-01-24        Sunday
+2021-01-25        Monday
+2021-01-26        Tuesday
+2021-01-27        Wednesday
+2021-01-28        Thursday
+2021-01-29        Friday
+2021-01-30        Saturday
+2021-01-31        Sunday
+
+Completion time: 2021-09-29T11:19:28.4075564+05:30
+
+
+-- write a program to a string and display with vertical order
+
+input: kfintech
+
+K
+F
+I
+N
+T
+E
+C
+H
+
+Declare @str varchar(20), @x int = 1
+set @str = 'kfintech'
+While( @x <= len(@str) )    
+Begin
+  print substring( @str,@x,1)
+  set @x = @x + 1   
+End
+
+output:
+-------
+k
+f
+i
+n
+t
+e
+c
+h
+
+-- program to display following format output
+
+input : kfintech
+
+k
+kf
+kfi
+kfin
+kfint
+kfinte
+kfintec
+kfintech
+
+Declare @str varchar(20), @x int = 1
+set @str = 'kfintech'
+While( @x <= len(@str) )    
+Begin
+  print substring( @str,1,@x)
+  set @x = @x + 1   
+End
+
+
+** what is output of the given program :
+-----------------------------------------
+
+Declare @ename varchar(10)
+Select @ename=ename from emp
+print @ename
+
+
+note: above program returns last employee name becuase variable can hold only one value at a time. To overcome       this problem SQL SERVER provided one new concept in T-SQL is CURSORS
+
+CURSORS
+-------
+
+  -> Cursor is one of the private context area
+
+  -> It creates a tempory buffer and it holds SELECT statement output
+
+  -> Cursors are used to process row-by-row in t-sql program
+
+  -> In t-sql program whenever SELECT clause returns morethan one value then CURSORS are supported
+
+** To write cursor program first we must know cursor operations **
+-------------------------------------------------------------------
+
+i. declaring cursor
+
+ii. open cursor
+
+iii. fetch records
+
+iv. close cursor
+
+v.  deallocate cursor
+
+ 
+i. declaring cursor :
+---------------------
+
+  -> In declaration part we can declare the cursor
+
+syn:-  Declare <cursor_name> Cursor for <SELECT statment>;
+
+ex:-   Declare C1 cursor for select ename from emp
+
+ii.Opening cursor :
+------------------
+
+ -> It opens the cursor
+
+ -> Memory allocated after opened
+  
+ -> Cursor C1 Points to First Record 
+
+syn:- Open <cursor_name>
+
+ex:- Open C1
+
+
+iii. fetching records :
+-----------------------
+
+  -> Fetch statement is used to copies cursor record into t-sql variables
+
+  -> The fetch statement fetches one record at a time
+
+syn:-  FETCH NEXT FROM <cursor_name> INTO <variables>
+
+ex:-   FETCH NEXT FROM C1 INTO @name
+
+
+iv. close cursor:
+-----------------
+
+  -> It closes the cursor
+
+syn:- Close <cursor_name>;
+
+ex:- Close C1;
+
+
+v. deallocating cursor :
+------------------------
+
+  -> Allocated memory will be de-allocated
+
+syn:- Deallocate <cursor_name>
+
+      deallocate c1
+
+
+@@fetch_status :
+-----------------
+
+  -> it is one the cursor attribute 
+
+  -> It returns status of the FETCH statement
+
+         * it returns 0 when fetch statment fetches record successfully
+
+         * it returns -1 when  fetch statment nothing fetched any records
+
+Example:
+--------
+
+  -- write a cursor program to display all employ names
+
+DECLARE C1 CURSOR FOR  SELECT ename from emp
+DECLARE @name varchar(10)
+OPEN C1
+FETCH NEXT FROM C1 INTO @name    
+WHILE( @@fetch_status=0) 
+BEGIN
+  PRINT @name
+  FETCH NEXT FROM C1 INTO @name   
+END
+  CLOSE C1
+  DEALLOCATE C1
+
+OUTPUT:
+-------
+smith
+blake
+clark
+hemanth
+king
+turner
+adams
+james
+archana
+miller
+
+
+  -- write a cursor program to display all employ empno, jobs
+
+DECLARE C1 CURSOR FOR  SELECT empno,job from emp
+DECLARE @job varchar(10), @empno int
+OPEN C1
+FETCH NEXT FROM C1 INTO @empno, @job   
+WHILE( @@fetch_status=0) 
+BEGIN
+  PRINT cast(@empno as varchar) + '    ' + @job
+  FETCH NEXT FROM C1 INTO @empno, @job  
+END
+  CLOSE C1
+  DEALLOCATE C1
+
+output:
+-------
+7698    MANAGER
+7782    MANAGER
+7788    ANALYST
+7839    PRESIDENT
+7844    SALESMAN
+7876    CLERK
+7900    CLERK
+7902    ANALYST
+7934    CLERK
+
+
+-- Program to display only SUNDAYs from two given dates
+
+
+-- write a t-sql program to process money transfer
+
+before transfer:
+---------------
+   sbi1=7000
+   sbi2=1500
+
+   saccno='sbi1'
+   daccno='sbi2'
+   amt = 1000
+
+After transfer:
+---------------
+   sbi1=6000
+   sbi2=2500
+
+
+
+-- write a to display following format output
+
+*
+**
+***
+****
+*****
+
+
+
+
+
+
+
+
+
+
+
+
+

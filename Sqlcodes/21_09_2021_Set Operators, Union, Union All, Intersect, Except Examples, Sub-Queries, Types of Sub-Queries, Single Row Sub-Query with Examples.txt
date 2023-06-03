@@ -1,0 +1,526 @@
+
+Today Excercise :
+-----------------
+
+  -- Waq to display who are joined in the same date
+
+         select e.eno, e.ename, e.doj from emp_db e, emp_db e1 where  e.doj = e1.doj and e.eno!=e1.eno
+
+  -- waq to display BLAKE's manager name
+
+       select m.ename from emp m, emp e
+				where m.empno = e.mgr and e.ename='BLAKE'
+
+
+Exercise :
+----------
+
+4 TEAMS
+-------
+
+TEAMS  t1
+-----
+ID	TEAM_NAME
+---	---------
+1	CSK
+2	MI
+3	RCB
+4	SRS
+
+TEAMS   t2
+-----
+ID	TEAM_NAME
+---	---------
+1	CSK
+2	MI
+3	RCB
+4	SRS
+
+select t1.team_name,t2.team_name from team t1, team t2 where (t1.team_name=t2.team_name)
+ 										or t1.id!=t2.id ) 
+										and 
+				   					(t1.id!=t2.id)
+										order by t2.team_name
+
+-- waq to display following format output 
+
+	CSK	vs	MI
+	MI	vs	RCB
+	RCB	vs	SRS
+        .
+        .
+
+Outer joins exercises :
+-----------------------
+
+emp_db					dept_db
+------					-------
+eno	ename	dno			dno	dname	loc
+---	-----	---			---	-----	---
+101	king	10			10	acc	hyd
+102	scott	30			20	res	sec
+103	jones	20			30	fin	chennai
+104	allen	50			40 	admin	banglore
+105	smith	10
+
+
+ 1. display only unmatched records from leftside table ?
+
+ 2. display only unmatched records from rightside table ?
+
+ 3. display only unmatched records from both tables
+
+
+SET OPERATORS :
+---------------
+
+  -> Set Operators are used to join outputs of SELECT statments
+
+rules :
+-------
+
+
+  -> no.of columns return by select statments should be same
+
+  -> corresponding columns datatypes must be same
+
+Types of Set Operators :
+------------------------
+i. UNION
+
+ii. UNION ALL
+
+iii. INTERSECT
+
+iv. EXCEPT
+
+A = { 1, 2, 3, 4 }
+
+B = { 1 ,2, 5, 6 }
+
+A UNION B  = { 1, 2, 3, 4, 5, 6 } 
+
+A UNION ALL B = {1,2,3,4,1,2,5,6 }
+
+A INTERSECT B = { 1, 2 }
+
+A EXCEPT B  = { 3, 4 }
+
+B EXCEPT A  = { 5, 6 } 
+         
+syntax :
+--------
+
+SELECT STATEMENT1
+Union/Union All/Intersect/Except
+SELECT STATEMENT 2
+
+
+select job from emp where deptno=20
+
+job	deptno
+---	-----
+CLERK	20
+MANAGER 20 
+CLERK   20
+
+
+select job from emp where deptno=30
+
+job		deptno
+--------	------
+SALESMAN	30
+SALESMAN	30
+SALESMAN
+MANAGER
+SALESMAN
+CLERK
+
+i. UNION :
+----------
+
+   -> It displays matching records from query1 and query2 at one time and un-matched records from both queries
+
+   -> it eliminates duplicates
+
+   -> output comes in sorted order
+
+
+          select job from emp where deptno=20
+			union
+	  select job from emp where deptno=30
+
+
+		union					join
+		----					----
+
+	i. it joins horizontal data   		  i. it joins vertical data
+
+       ii. combines rows			 ii. it combines columns 
+
+      iii. performed between two		iii. performed between two dissimilar structure
+           similar rows
+
+output:
+-------
+CLERK
+MANAGER
+SALESMAN
+
+ii. UNION ALL :
+---------------
+
+   -> It displays all records query 1 and all records from query2
+
+	  select job from emp where deptno=20
+			union all
+	  select job from emp where deptno=30
+
+
+iii. INTERSECT :
+----------------
+
+   -> it displays only matching records from both tables
+
+          select job from emp where deptno=20
+			intersect
+	  select job from emp where deptno=30
+
+iv. EXCEPT :
+------------
+
+   -> It displays un-matched records from query1 compare to query2
+
+	  select job from emp where deptno=20
+			except
+	  select job from emp where deptno=30
+
+
+other examples:
+---------------
+
+emp_hyd  : eno	ename	doj	job	deptno
+
+emp_chennai : eno	ename	` job	deptno
+
+dept : deptno	dname	loc
+
+** to all all employees from both branches
+
+select * from emp_hyd
+    union
+select * from emp_chennai;
+
+** to display employee details with dept. details
+
+join :
+-----
+
+  select * from emp_hyd e1, emp_chennai e2 , dept d1  where e1.deptno=d1.deptno and e2.deptno=d1.deptno;
+
+union:
+------
+ 
+select * from emp_hyd, dept where emp_hyd.deptno=dept.deptno 
+   union
+select * from emp_chennai, dept where emp_chennai.deptno=dept.deptno
+
+
+Examples:
+---------
+
+  select job, deptno from emp where deptno=10
+
+
+SUB-QUERIES :
+-------------
+
+ What is a Query ?  
+
+    -> To Requesting data from Databases 
+
+    -> Basically Queries are classified into 3 types
+
+             i. Root Query
+
+            ii. Parent Query
+
+	   iii. Child Query
+
+i. Root Query :
+---------------
+
+   -> The Query which is not depends upon another query output for it's conditional value is called as root           query
+
+               ex: select * from emp
+
+ii. Parent query :
+------------------
+
+  -> The query which is depends upon another query output for it's conditional value is called as Parent Query
+
+  -> Parent query is also called as Outer Query / Dependent Query.
+
+           ex: select * from emp where sal = ( select max(sal) from emp )
+
+
+iii. Child Query :
+------------------
+
+   -> The query which returns output to it's parent's query is called as Child Query
+
+   -> Child Query also called as INNER QUERY / NESTED QUERY / SUB-QUERY / INDEPENDENT QUERY
+
+           ex: select * from emp where sal = ( select max(sal) from emp )
+
+SUB-QUERIES :
+-------------
+
+-> Query within a query is called as Sub-Query
+
+-> Sub-queries are supported by SELECT, UPDATE, DELETE & INSERT commands
+
+-> Generally sub-quries are placed in WHERE clause of SELECT, UPDATE & DELETE statements
+
+-> Sub-Queries are also placed in FROM clause and column_list of OUTER QUERY
+
+-> if Sub-Queries are placed in FROM clause those are queries are called as Derived Tables
+
+        syntax: select * from (    );
+
+-> if Sub-Queries are placed in COLUMN_LIST of outer query that type of queries are called as SCALAR Sub-   Queries
+
+       syntax: select col1, col2, (  ), ... from <table_name>;
+
+-> Sub-queries must be enclosed within the brackets (  )
+
+-> Sub-Queries are not supported ORDER BY clause, only Derived Table Sub-Queries
+
+
+-> By using sub-queries it improves the performance while retrieving or manipulationg data
+
+TYPES OF SUB-QUERIES:
+---------------------
+
+i. Single row Sub-Queries
+
+ii. Multi-row sub-Queries
+
+iii. co-related sub-queries
+
+iv. Derived Tables
+
+v. Scalar Sub-Query
+
+ 
+Note: Single row, Multi-rows sub-queries first Inner Query is executed depends upon output of Inner query then       OUTER Query will be Executed.
+
+
+i. Single row Sub-queries :
+---------------------------
+
+  -> Sub-Query Returns  Single value is called as single row sub-query
+
+  -> In Single row sub-queries sub-query outputs are compared with >, < , >=, <=, =, between, not between,      etc., operators
+
+Example :
+---------
+
+emp :
+-----
+7369	smith	800.00	NULL	2021-08-28	CLERK	7902	20
+7499	allen	1600.00	300.00	2021-09-09	SALESMAN7698	30
+7521	ward	1250.00	NULL	1981-02-22	SALESMAN7698	30
+7566	jones	2975.00	NULL	1981-04-02	MANAGER	7839	20
+7654	martin	1250.00	1400.00	1981-09-28	SALESMAN7698	30
+7698	blake	2850.00	NULL	1981-05-01	MANAGER	7839	30
+7782	clark	2450.00	NULL	1981-06-09	MANAGER	7839	10
+7788	hemanth	3000.00	NULL	2021-09-14	ANALYST	7566	NULL
+7839	king	5000.00	NULL	1981-11-17	PRESIDENTNULL	10
+7844	turner	1500.00	0.00	1981-09-08	SALESMAN7698	30
+7876	adams	1100.00	NULL	1983-01-12	CLERK	7788	20
+7900	james	950.00	NULL	1981-12-03	CLERK	7698	30
+7902	archana	3000.00	NULL	2021-08-10	ANALYST	7566	NULL
+7934	miller	1300.00	NULL	1982-01-23	CLERK	7782	10
+
+dept:
+-----
+10	ACCOUNTING	NEW YORK
+20	RESEARCH	DALLAS
+30	SALES		CHICAGO
+40	OPERATIONS	BOSTON
+
+  -- waq to display SMITH employee and his Coleagues
+
+	  select ename from emp where deptno=(select deptno from emp where ename='smith')
+
+  -- waq to display who are getting morethan all employees avg. salaries
+
+	  select * from emp where sal >( select avg(sal) from emp )
+
+  -- waq to display name of employee earning maximum
+
+         select ename from emp where sal=max(sal);   => error
+
+note: Aggregate functions are not supported in WHERE clause, they are allowed by using GROUP and HAVING clauses
+
+	 select Ename,Sal from Emp where sal=( select max(sal) from emp )
+
+   -- waq to display who are workging in NEWYORK Location
+
+	 SELECT * FROM EMP WHERE DEPTNO=( select deptno from dept where loc='NEW YORK')
+
+Exercises :
+-----------
+
+  -> waq to display who are joined after joining of FORD employee
+
+  -> waq to display name of the employee having maximum experience
+
+  -> waq to display last jonining employee details
+
+  -> waq to display who are working in SALES dept.
+
+  -> waq to display who are working, ACCOUNT, SALES depts. and there should be joined in 1981 year
+
+  -> waq to display who are senior to KING employee
+
+  -> waq to display who are earning morethan BLAKE
+
+  -> waq to display 2nd highest salary
+
+  -> waq to display 3rd highest salary
+
+  -> waq to display who are earning 2nd maximum salary 
+
+  -> waq to update employe sal to max(sal) of 30th dept whose empno=7499
+
+  -> waq to swap salaries whose empnos 7369 , 7499 ?  ( hint: using UPDATE with CASE )
+
+before swapping :
+----------------
+empno	sal
+----	---
+7369	800
+7499	1300
+
+after swaping :
+---------------
+empno	sal
+----	---
+7369	1300
+7499	800
+  
+
+
+        
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+							
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+stu_info:
+---------
+
+std_mas:
+--------
+std_id,  std_name,  class,
+
+std_address:
+------------
+std_id, hno, street, city, pincode, 
+
+std_marks:
+----------
+std_id,  maths, phys, chem, 
+
+std_grade:
+----------
+std_id, total, avg. grade, rank
+
+
+1
+.
+.
+.
+100
+
+std_prograss report
+--------------------
+
+  std_id, std_name, class, maths, phys, chem, total, avg, grade, rank
+
+
+
+

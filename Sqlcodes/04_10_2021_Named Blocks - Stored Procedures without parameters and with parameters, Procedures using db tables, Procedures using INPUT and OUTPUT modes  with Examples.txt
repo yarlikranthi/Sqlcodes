@@ -1,0 +1,297 @@
+II. NAMED BLOCKS :
+------------------
+
+  ->  A set of t-sql program statements are stored in db permanently that type of blocks are called as NAMED       BLOCKS
+ 
+  -> All named block programs are start with CREATE OR ALTER  Statement
+
+           ex: procedures, functions & triggers
+
+Adv. :
+------
+
+i. Modularity :
+---------------
+
+  -> A huge program is devided into sub-programs
+
+  adv.
+
+       a. easy to understand
+
+       b. easy to debug-the errors
+
+ii. Re-usability :
+------------------
+
+  -> Once Procedure/function/trigger created in DB that is stored in db permanently.  so applications which are      connected to db can reuse procedure / function
+
+iii. security :
+---------------
+
+   -> proc/func are secured because they are stored in db. so only authorized used can execute these programs
+
+
+iv. Invoking from front-end applications :
+------------------------------------------
+
+  -> proc/func can be called from front-end applicatiions like java, .net, php, etc.,
+
+
+v. Improves the performance :
+------------------------------
+
+  -> Proc improves performance because they are pre-compiled i.e., compiled already and ready for execution.
+
+  -> when we create a procedure progrma is compiled and stored in db and whenever we call procedure only            execution is repeated bot not compilation, so this is improves performance.
+
+Stored Procedures :
+-------------------
+
+syntax:
+------
+
+CREATE OR ALTER PROCEDURE <procedure_name>    
+      parameters_list if any
+             as
+ <statements>;
+ 
+
+-> While calling the procedure to supports parameters, but parameters are optional
+
+-> Procedures are supports parameter modes, Paramter mode means it specifies type of the parameter
+
+-> stored procedure supports two types of pameter modes
+
+     i. INPUT    ii. OUTPUT
+
+-> Stored procedures are stored in db permanetly
+
+
+Example:
+--------
+
+  -- write a stored procedure to display welcome messsage
+
+
+Create or Alter Procedure my_proc
+               as
+ print 'Welcome to Stored Procedure'
+
+
+** How to execute the procedure :
+---------------------------------
+
+syntax:
+-------
+
+ Execute <procedure_name>
+
+Ex:
+---
+
+ Execute my_proc
+
+
+-- write a stored procedure to find sum of two numbers
+
+create or alter procedure add_proc
+            as
+declare @x int=10, @y int=20, @z int
+set @z = @x + @y
+print 'Sum of Two Numbers ' + cast( @z as varchar )
+
+
+execute add_proc
+
+execute add_proc
+
+
+
+note: to execute above program any time, the program returns same output becuase x, y variable values are same.
+      to overcome this problem procedure are supports parameters
+
+  
+Procedures with parameters :
+----------------------------
+
+  -> While calling the procedure to pass parameter is called as procedure with parameters
+
+
+Create or alter procedure add_proc
+        @x int, @y int 
+              as
+ declare @z int;
+ set @z = @x + @y;
+ print 'Sum of Two Numbers = ' + cast( @z as varchar )
+
+
+execute add_proc 10, 30
+
+execute add_proc 50, 90
+
+execute add_proc 3450, 6790
+
+
+Example 2:
+----------
+
+-- write a stored procedure to input employee no and display employee name
+
+
+Create or alter procedure emp_proc
+        @p_empno int
+              as
+declare @v_ename varchar(10)
+Select @v_ename = ename from emp where empno=@p_empno
+print 'Employee Name '  + @v_ename
+
+
+execute emp_proc 7902
+
+execute emp_proc 7788
+
+
+-- Write a stored procedure to insert data into dept
+
+     Create or alter procedure dept_ins
+@deptno tinyint, @dname varchar(10), @loc varchar(20)
+                          as
+ Insert into dept values( @deptno, @dname, @loc)
+ print 'Record Inserted'
+
+calling procedure :
+-------------------
+
+ Execute dept_ins 50, 'Maths', 'Hyd'
+
+ select * from dept
+
+-- write a stored procedure to update employee salary based on given pct
+
+
+ Create or alter procedure upd_proc
+   @empno int, @pct tinyint
+             as
+BEGIN TRANSACTION
+update emp set sal = sal + (sal * @pct/100) where empno = @empno;
+if @@rowcount>0
+ Begin
+    COMMIT;
+    print 'Salary Increment with ' + cast( @pct as varchar ) + '%'
+ End
+Else
+ Begin
+    print 'Employ Record Not Found.'
+	ROLLBACK
+ End	
+	
+
+Execute upd_proc 7788, 10
+
+Execute upd_proc 9000, 15
+
+select * from emp
+
+
+** Procedure using PARAMETER MODES  **
+--------------------------------------
+
+  -> Stored Procedure are supports two types of parameter modes
+
+          i. INPUT
+
+         ii. OUTPUT
+
+i. INPUT :
+----------
+
+  -> This mode of paremeter used to take input into procedure
+
+  -> by default all parameters are input parameters
+
+  -> On INPUT parameter mode variable assignment targets ( =  operator ) are not supported 
+
+Ex:
+---
+
+Create or alter procedure add_proc
+  @x int  , @y int  
+             as
+ declare @z int
+ set @x = 700
+ set @z = @x + @y
+ print 'Sum of two numbers ' + cast(@z as varchar)
+
+calling procedure:
+------------------
+
+    execute add_proc 40, 60
+
+
+ii. OUTPUT :
+------------
+
+  -> Procedures are may / may not return values
+
+  -> Procedure return values thourgh OUTPUT parameter variables
+   
+  -> On OUTPUT parameter variables Assigment tagets are supported
+
+ex:
+-----
+
+  -- write a stored procedure to find sum of two given numbers and return output
+
+create or alter procedure add_proc
+    @x int, @y int, @z int output 
+              as
+set @z = @x + @y
+
+
+calling above procedure :
+-------------------------
+
+execute add_proc 10, 20    -- error
+
+declare @res int
+execute add_proc 10, 20, @res output
+print @res
+
+
+declare @res int
+execute add_proc 768, 456, @res output
+print @res
+
+-- write a stored procedure to input employee no and update employee salary updated salary should be return
+
+Create or alter procedure emp_incr_proc
+ @empno int, @sal money, @newsal money output
+		    as
+ Update emp set = sal + @sal where empno=@empno
+ select @newsal = Sal from emp where empno = @empno
+
+
+calling procedure :
+-------------------
+declare @res money
+execute emp_incr_proc 7788, 1000, @res output
+ print 'After Incement Employ Salary Rs.' + cast( @res as varchar )
+
+
+
+-- write a stored procedure to input employee no and delete corresponding employee record
+
+
+-- write a stored procedure to find simple interest and program should be return interest
+
+
+-- write a stored procedure to input employee no and return corresponding employee netslary 
+       
+                netsal = sal + comm
+
+-- write a stored procedure to inpput employee no and return corresponding employee grade
+									 ( by using joins query)
+
+
+

@@ -1,0 +1,346 @@
+
+-- waq to display who are getting dept.wise maximum salaries and their details
+
+
+     select e.empno, e.ename, e.sal, e.deptno from emp e
+				where sal = ( select max(sal) from emp where deptno=e.deptno);
+
+-- waq to display who are getting less than their jobs maximum salaries
+ 
+     select e.empno, e.ename, e.job, e.sal, e.deptno from emp e
+		       where e.sal < ( select max(sal) from emp where job=e.job);
+
+EXISTS : 
+--------
+
+   -> This operator returns BOOLEAN values ( TRUE / FALSE )
+
+   -> if sub-query executes successfully and it returns atleast one record then EXISTS returns TRUE
+
+   -> if sub-query executes successfully and it returns 'no rows selected' then EXISTS returns FALSE
+
+
+-- waq to display working employee dept. details
+
+       Select d.deptno, d.dname, d.loc from dept d where EXISTS ( select * from emp where deptno=d.deptno)
+
+output :
+--------
+
+10	ACCOUNTING	NEW YORK
+20	RESEARCH	DALLAS
+30	SALES	        CHICAGO
+
+-- waq to display on which depts. no employees are working
+
+   Select d.deptno, d.dname, d.loc from dept d where NOT EXISTS ( select * from emp where deptno=d.deptno)
+
+
+-- WAQ to display who are earining max(sal) in their depts.
+
+          select * from emp e where sal = ( select max(sal) from emp where deptno=e.deptno)
+
+DERIVED TABLES :
+----------------
+
+  -> Sub-Queries are placed in FROM clause is called ad Derived Tables
+
+syntax:
+-------  
+
+    select columns from ( select statement ) <alaise> Where <condition>;
+
+  -> subquery output acts like a table for outer query
+
+  -> derived tables are used in the following scenarios...
+
+          i. to control the order of execution of clauses
+
+         ii. to use the result of the one process in another process
+
+        iii. to join a table with query output
+
+-- waq to display employee eno and corresponding each employee Annualary and whose annual salary >=30000
+
+           select empno, sal*12 as annual_sal from emp where annual_sal>30000   => Error
+
+
+note: Alaises are not supported BY WHERE CLAUSE / GROUP BY CLAUSE / HAVING CLAUSE
+
+     
+         Select * from (select empno, sal*12 as annual_sal from emp ) E  WHERE E.Annual_sal>30000
+
+-- waq to display top 5 maximum salary employees
+
+        select * From ( select empno, ename, sal, dense_rank()over(order by sal desc) as rnk from emp ) as E 										where e.rnk<=5
+
+-- waq to display 5th maximum salary
+
+        select * From ( select empno, ename, sal, dense_rank()over(order by sal desc) as rnk from emp ) as E 										where e.rnk=5
+
+-- waq to display 5th and 10th maximum salary
+
+-- waq to display 5th to 10th maximum salaries
+
+-- waq to display EVEN records
+
+
+-- waq to display first 5 records from the table
+
+select * from ( select empno, ename, sal, deptno, row_number() over (order by empno asc) as rno  from emp ) e  										where e.rno<=5
+
+
+-- waq to display last 5 records from emp table
+
+
+ select * from ( select empno, ename, sal, deptno, row_number() over (order by empno asc) as rno  from emp ) e  
+										except
+ select * from ( select empno, ename, sal, deptno, row_number() over (order by empno asc) as rno  from emp ) e 											where rno<10
+
+note: above output is static, becuase if table contains only 14 records then it displays last 5 records.  To       execute query dynamically...
+
+
+ select * from ( select empno, ename, sal, deptno, row_number() over (order by empno asc) as rno  from emp ) e  
+										except
+ select * from ( select empno, ename, sal, deptno, row_number() over (order by empno asc) as rno  from emp ) e 					where rno<=( select count(*)-5 from emp)						 
+         
+-- waq to generate bank mini statement ( latest 5 records )
+
+bank_trans: tno, accno, tdate, ttype, tamount
+
+
+-- waq to display duplicate records from the table
+
+emp_db
+------
+empno	ename
+-----	-----
+1001	king
+1002	scott
+1001	king
+1003	jones
+1004	smith
+1003	jones
+
+
+ select * from ( select empno, ename , row_number() over ( partition by empno, ename order by empno asc ) 
+										as rno from emp_db  ) e
+                                                  
+ 
+output:
+-------
+emp_db
+------
+empno	ename  rno
+-----	-----  ---
+1001	king    1
+1001	king    2
+
+1002	scott   1
+
+1003	jones   1
+1003	jones   2
+
+1004	smith   1
+
+
+
+select * from ( select empno, ename , row_number() over ( partition by empno, ename order by empno asc ) 
+										as rno from emp_db  ) e
+                                                 					 where rno >1
+
+emp_db
+------
+empno	ename  rno
+-----	-----  ---
+1001	king    2
+1003	jones   2
+
+
+-> waq to delete duplicate records from the table
+
+
+Delete from ( select empno, ename , row_number() over ( partition by empno, ename order by empno asc ) 
+										as rno from emp_db  ) e
+                                                 				       where rno >1  => error
+
+
+note: Derived tables outer query cannot be DML it msut be SELECT statment.  To Overcome this to use CTEs.
+
+
+CTE( Common Table Expression ) :
+--------------------------------
+
+  -> A Commom table Expression, also called as CTE in short form, is a temporary named result set that you can       reference within a SELECT, INSERT, UPDATE, or DELETE Statement.
+
+  -> CTEs are smilar to derived tables to simplify the complex queries
+
+  -> CTEs are used to use the result of one process in another process
+
+syntax:
+-------
+
+  WITH <expression_name> [ ( column_name[,...n] ) ]
+  AS
+   (CTE_query_definition)
+
+** To view the CTE result we use a select query with the CTE expression_name
+
+   Select [ column1, column2,... ] from expression_name;
+
+Example:
+--------
+
+  -> delete first 5 rwos from the table
+
+step1: 
+
+  select empno, ename, sal, row_number() OVER ( ORDER BY EMPNO ASC) AS RNO from emp
+
+7369	smith	2850.00	1
+7499	allen	800.00	2
+7521	ward	1250.00	3
+7566	jones	2975.00	4
+7654	martin	1250.00	5
+7698	blake	2850.00	6
+7782	clark	2450.00	7
+7788	hemanth	3000.00	8
+7839	king	5000.00	9
+7844	turner	1500.00	10
+7876	adams	1100.00	11
+7900	james	950.00	12
+7902	archana	3000.00	13
+7934	miller	1300.00	14
+
+step2 : delete the records whose rno <=5
+
+  WITH emp_temp
+  AS
+     (select empno, ename, sal, row_number() OVER ( ORDER BY EMPNO ASC) AS RNO from emp)
+  Delete from emp_temp where rno<=5
+
+
+** to delete duplicate from the table
+
+
+WITH E
+AS
+ (select * from ( select empno, ename , row_number() over ( partition by empno, ename order by empno asc ) 
+										as rno from emp_db  ) e )
+ Delete from E where rno>1
+
+select * from emp_db
+
+
+
+Scalar Sub-Queries :
+--------------------
+
+  -> Sub-queries in SELECT cluase is called as scalar sub-queries
+
+ 				or
+
+  -> Sub-queries are placed in column_list of Outer query is called as SCALAR Sub-queries
+
+
+syntax:
+-------
+
+  Select col1, col2,(    ), col3,... from <table_name>
+
+-- waq to display emploee details and all employees sum of salaries
+
+ select empno, ename, job, sal, deptno, ( select sum(sal) from emp ) from emp
+
+-- waq to display deptno, dept_totsal, totsal ?
+
+       select deptno, sum(sal),( select sum(sal) from emp) as total  from emp group by deptno
+
+-- waq to display deptno, dept_totsal, total, pct ?
+
+			or
+
+-- waq to display dept.wise pct salaries
+
+     pct = (dept_total / totsal ) * 100 
+
+   select deptno, sum(sal)as dept_totsal, ( select sum(sal) from emp ) as total,
+                ( sum(sal)/( select sum(sal) from emp ) ) * 100 as pct
+			from emp group by deptno
+
+-- waq to display dept. details and corresponding dept.wise sum of salaries
+
+  select d.deptno, d.dname, d.loc, ( select sum(sal) from emp where deptno=d.deptno) as dept_total from dept d
+
+-- waq to display Dept.Name and corresponding dept.wise min, max, and sum of salaries
+
+  Select d.dname, ( select isnull(min(sal),0) from emp where deptno=d.deptno) as dept_minsal,
+                  ( select isnull(max(sal),0) from emp where deptno=d.deptno) as dept_maxsal,
+                  ( select isnull(sum(sal),0) from emp where deptno=d.deptno) as dept_sumsal
+     from dept d
+
+other Examples using SCALAR Sub-queries :
+-----------------------------------------
+
+emp_db: eno,  ename
+        1001  king
+        1002  scott
+
+emp_atten : eno, atten_date,  status
+            1001 2021-08-1      p
+            1002 2021-08-1      p
+            1001 2021-08-2      p
+            1002 2021-08-2      l
+            1001 2021-08-1      a
+            1002 2021-08-2      p
+
+eno	ename	presents
+----	-----	--------
+1001	king	21
+
+
+-- waq to display employee details and corresponding each employee howmany presents in the last month
+
+
+-- waq to display employee details and corresponding each employee howmany Leaves in the last month
+
+
+-- waq to display employee details and corresponding each employee howmany absents in the last month
+
+
+
+( 786  /  1000 ) * 100 
+
+
+10
+11
+12
+13
+14
+
+except
+
+ 
+
+
+
+
+Emp e
+----
+empno	ename	sal	deptno
+-----	-----	----	------
+7788	scott	2000	20    
+7566	jones	3000	10    
+7698	blake	4000	30    
+7839	king	5000	10    
+7902	ford	800	20    
+7499	allen	1500	30    
+
+
+
+
+
+
+
+ 
+Tables

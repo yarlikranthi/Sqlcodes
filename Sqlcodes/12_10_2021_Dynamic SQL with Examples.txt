@@ -1,0 +1,341 @@
+
+DYNAMIC SQL:
+************
+
+  -> SQL Commands build at runtime are called as dynamic sql commands
+
+Example:-
+---------
+
+1. Drop table Emp    ( static SQL )
+
+
+2. set @tname='EMP'
+
+   DROP TABLE @tname  ( Dynamic SQL)
+
+
+=> Dynamic SQL is useful when we don't know tablenames and colum names until runtime.
+
+
+=> Dynamic SQL commands are executed by using....
+
+       i. EXEC command
+
+      ii. SP_Executesql Procedure
+
+using EXEC Command :
+--------------------
+
+  => Dynamic SQL COMMAND should be passed as string to EXEC
+
+        EXEC ( 'Dynamic sql command' )
+
+Example 1:-
+-----------
+
+  DECLARE @tname varchar(10)
+  SET @tname='EMP'
+  EXEC ( 'DROP TABLE ' + @tname );
+
+note: above program dropped only EMP table, To pass Tables Names at runtime then...
+
+Example 2:-
+-----------
+
+  -- write a stored procedure to drop given tables
+
+  Create or Alter Procedure drop_table
+       @tname varchar(20)
+AS
+ EXEC ( 'Drop Table ' + @tname )
+ print 'Table Dropped Successfully.'
+
+testing :
+---------
+
+  EXECUTE DROP_TABLE EMP66
+
+-- write a strored procedure to drop all tables
+
+
+** To see the created tables names from DB BASE
+
+
+SELECT * FROM SYS.TABLES
+
+SELECT NAME FROM SYS.TABLES
+
+SELECT * FROM INFORMATION_SCHEMA.TABLES
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'
+
+
+
+Create or Alter Procedure DROP_ALL_TABLES
+AS
+DECLARE C1 CURSOR FOR SELECT NAME FROM SYS.TABLES
+DECLARE @tname varchar(10), @str varchar(100)
+OPEN C1
+FETCH NEXT FROM C1 INTO @TNAME
+WHILE( @@FETCH_STATUS=0 )
+BEGIN
+ SET @str = 'DROP TABLE ' + @tname          -- DROP TABLE EMP66
+ EXEC ( @str )
+ FETCH NEXT FROM C1 INTO @TNAME
+END
+ CLOSE C1
+ DEALLOCATE C1
+
+-- Write Dynamic SQL program to display in each table howmany records with table name
+
+EMP    ?
+dept   ?
+salgrade ?
+.
+.
+.
+.
+
+Create or Alter Procedure Emp_Rec_Proc
+AS
+DECLARE C1 CURSOR FOR SELECT NAME FROM SYS.TABLES
+DECLARE @tname varchar(20), @str nVarchar(100), @Cnt NVARCHAR(10)
+OPEN C1
+FETCH NEXT FROM C1 INTO @tname
+WHILE( @@FETCH_STATUS=0)
+BEGIN
+ SET @STR = 'select @cnt=count(*) from ' + @tname    
+ Execute sp_executesql @str, '@cntout nvarchar(10) output', @cntout=@cnt output
+ PRINT @TNAME +  '     ' + @CNT  
+ FETCH NEXT FROM C1 INTO @TNAME
+END
+CLOSE C1
+DEALLOCATE C1
+
+execute emp_rec_proc
+
+EXISTS Operator :
+-----------------
+
+  -> Used to check whether record Exists in the table or not\
+
+syntax:-
+
+   Select columns from table_name WHERE EXISTS( select statement )
+
+=> EXISTS returns TRUE / FALSE
+
+
+	TRUE  => if sub-query returns atleast one record
+
+        FALSE => if sub-query returns 0 rows
+
+Example:
+--------
+PRODUCTS
+prodid		pname	price
+100
+101
+102
+
+ORDERS
+------
+ORDID	PRODID	QTY
+-----	------	----
+1000	100	1
+1000	101	2
+1001	100	1
+
+
+-- display list of products ordered by customers ?
+
+       select p.prodid, p.pname, p.price from prodcuts p
+				where exists ( select * from order where prodid=p.prodid)
+
+					or
+
+	select * from products where prodid in ( select prodid from orders)
+
+o/p: 
+
+100
+101
+
+=> SQL SERVER recommends EXISTS operator than IN operator because EXISTS gives good performance compare to IN    operator
+
+NOT EXISTS :
+------------
+
+  -> Display prodcuts which are not order by any customers
+
+       select p.prodid, p.pname, p.price from prodcuts p
+				where not exists ( select * from order where prodid=p.prodid)
+         
+o/p: 102
+
+
+
+-- waq to delete all records from customer table
+
+        delete from customer;
+   
+ 
+
+--> Create following proc & function to implement various bank transactions
+
+i. account opening (procedure)
+
+validations:
+------------
+
+  -> account no. should be generate automatically
+
+           ex: sbi1, sbi2, ....
+
+  -> account type accepts either 's' or 'c'
+
+  -> Opening date will take today
+
+  -> Mobileno should be unique
+
+  -> Minimum opening balance rs.500/-
+
+
+ii.account closing (procedure)
+
+     -> Once customer close the account then take records backup
+
+iii. balance enquiry(scalar valued function)
+
+iv. money deposit(procedure)
+
+v. money withdrawl(procedure)
+
+vi.money transfer(procedure)
+
+vii. account statement from two given dates (table valued function)
+
+viii.mini statement( table valued function)
+
+
+** Table creations **
+
+Bank_mas :
+----------
+
+Create table Bank_Mas(Accno varchar(10),
+		      Cname varchar(20),
+		      Address varchar(20),
+		      Mobileno int,
+		      Odate date,
+		      acc_type char(1),
+		      Balance decimal(8,2)
+                     )
+
+Bank_Trans:
+-----------
+
+Create table Bank_Trans
+( Txn_Id Int,
+  Accno varchar(10),
+  tdate date,
+  Ttype char(2),
+  Tamount Decimal(8,2)
+)
+
+Sequences :
+-----------
+
+-- Sequence for generate account Numbers
+
+Create Sequence accno_seq
+Start with 1
+Increment by 1
+
+-- Sequence for to generate txn_ids
+
+Create sequence txn_id_seq
+Start with 1
+Increment by 1
+
+Procedures :
+------------
+
+ -- Procedures for to open a new account
+
+Create or Alter Procedure New_Acc_Proc
+  @Cname varchar(20), @address varchar(20),
+  @Mobilno int, @acc_type char(1), @balance Money
+AS
+
+
+
+
+		 
+
+  
+
+      
+
+
+
+
+
+
+
+
+
+ 
+END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

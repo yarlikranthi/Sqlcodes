@@ -1,0 +1,377 @@
+  -- write a cursor program to display all employ empno, jobs
+
+DECLARE C1 CURSOR FOR  SELECT empno,job from emp
+DECLARE @job varchar(10), @empno int
+OPEN C1
+FETCH NEXT FROM C1 INTO @empno, @job   
+WHILE( @@fetch_status=0) 
+BEGIN
+  PRINT cast(@empno as varchar) + '    ' + @job
+  FETCH NEXT FROM C1 INTO @empno, @job  
+END
+  CLOSE C1
+  DEALLOCATE C1
+
+output:
+-------
+7698    MANAGER
+7782    MANAGER
+7788    ANALYST
+7839    PRESIDENT
+7844    SALESMAN
+7876    CLERK
+7900    CLERK
+7902    ANALYST
+7934    CLERK
+
+
+-- Program to display only SUNDAYs from two given dates
+
+
+-- write a t-sql program to process money transfer
+
+before transfer:
+---------------
+   sbi1=7000
+   sbi2=1500
+
+   saccno='sbi1'
+   daccno='sbi2'
+   amt = 1000
+
+After transfer:
+---------------
+   sbi1=6000
+   sbi2=2500
+
+DECLARE @saccno varchar(10), @daccno varchar(10), @amt money, @bal money
+SET @saccno='sbi1'
+set @daccno='sbi2'
+Set @amt=1000
+select @bal= bal from bank_mas where accno=@saccno    
+if @amt > @bal    
+   print 'In-sufficient Balance'
+else
+   Begin
+     Update Bank_mas set Bal = Bal - @amt where accno=@Saccno
+     Update Bank_mas set Bal = Bal + @amt where accno=@Daccno
+     print 'Transaction completed.'
+   End
+
+   select * from bank_mas
+
+				
+			or
+
+DECLARE @saccno varchar(10), @daccno varchar(10), @amt money, @bal money
+SET @saccno='sbi1'
+set @daccno='sbi2'
+Set @amt=1000
+select @bal= bal from bank_mas where accno=@saccno    
+if @amt > @bal    
+   print 'In-sufficient Balance'
+else
+   Begin
+     BEGIN TRANSACTION
+       Update Bank_mas set Bal = Bal - @amt where accno=@Saccno
+       Set @scnt = @@rowcount
+       Update Bank_mas set Bal = Bal + @amt where accno=@Daccno
+       Set @dcnt = @@rowcount
+       if @scnt=1 and @dcnt=1 
+            commit
+            print 'Transaction completed.'
+       else
+         rollback;
+         print 'Transaction failed.'
+    End
+
+saccno = sbi1
+
+daccno = sbi10
+
+
+
+-- write a to display following format output
+
+*
+**
+***
+****
+*****
+
+
+-- write a cursor program to find sum of salaries without using SUM function
+
+Declare C1 FOR select sal from emp
+Declare @sal Money, @totsal money=0
+open c1
+Fetch next from c1 into @sal
+While( @@fetch_status=0)
+Begin
+ Set @totsal = @totsal + @sal    
+ fetch Next from c1 into @sal
+End
+print @totsal
+close c1
+deallocate c1
+
+
+-- write a cursor to display employee names in the following format 
+
+
+DECLARE C1 CURSOR FOR  SELECT ename from emp
+DECLARE @name varchar(10), @s varchar(1000)
+OPEN C1
+FETCH NEXT FROM C1 INTO @name    
+WHILE( @@fetch_status=0) 
+BEGIN
+  SET @s = @s + @name + ','    
+  FETCH NEXT FROM C1 INTO @name   
+END
+  print @s
+  CLOSE C1
+  DEALLOCATE C1
+
+
+STRING_AGG() :
+---------------
+
+     -> This function provied by sql server used to concatenate column values
+
+	        select string_agg(ename,',') from emp
+
+output:
+-------
+smith,allen,ford,....
+
+-- to display dept.wise employee names
+
+     select string_agg(ename,',') as names from emp group by deptno
+
+NULL	hemanth,archana
+10	miller,king,clark
+20	adams
+30	james,blake,turner
+
+-- write a cursor program to increment employee salaries based on given pct and increment detials 
+   should be stored in employee audit
+
+
+      if employee job is MANAGER/ANALYST then 40%
+
+      if employee job is SALESMAN/CLERKS then 30%
+
+      for other jobs 5%
+
+Table creation:
+---------------
+
+  Create table Emp_audit( Empno int, Incr_date date, Incr_amt money )
+
+Program :
+---------
+
+DECLARE e_cur CURSOR FOR SELECT empno, job, sal from emp
+DECLARE @incr_sal money, @empno int, @job varchar(10), @sal money
+Open e_cur
+Fetch Next from e_cur into @empno,@job,@sal
+WHILE( @@fetch_status=0)
+Begin
+ If @job in ( 'MANAGER','ANALYST')
+     set @incr_sal = @sal * 0.4
+ else if @job in ( 'SALESMAN','CLERK') 
+     set @incr_sal = @sal * 0.3
+ else
+     set @incr_sal = @sal * 0.05
+ update emp set sal = sal + @incr_sal where empno = @empno
+ Insert into Emp_audit values( @empno, getdate(), @incr_sal )
+ FETCH NEXT FROM E_cur into @empno,@job,@sal
+End
+print 'Salaries Incremented Successfully.'
+Close e_cur
+deallocate e_cur
+
+Select * from emp_audit
+Select * from emp
+
+
+
+
+
+
+
+-- Write a cursor program to find maximum salary without using MAX function
+
+-- Write a cursor program to find minimum salary without using MIN function
+
+-- write a cursor program to calculate total, avg and grade and insert into result table
+
+std_db
+------
+std_id	std_name    s1	  s2	s3
+------	--------    ---- ---- -----
+101	xxx	     90   80    60
+102     xxx   	     60   45    50
+
+result
+------
+std_id   total     avg    grade
+------	 ------    ----   ------
+
+
+** By default CURSORS follows TOP to BOTTOM approach
+
+
+SCROLLABLE CURSORS :
+--------------------
+
+  => By default cursor is called as forward only curosr and it supports forward navigation But doesn't support      backward navigation
+
+  => if cursor declared wiht SCROLL then is called as SCROLLABLE CURSOR and it supports both forward and      backword navigation
+
+  => forward only supports only FETCH NEXT statement but, SCROLLABLE cursor supports the following fetch      statements
+
+           	FETCH FIRST		=> fetches frist record
+		FETCH NEXT		=> fetches next record
+		FETCH PRIOR		=> fetches previous record
+		FETCH LAST		=> fetches last record
+		FETCH ABSOLUTE N	=> fetches Nth record from starting from 1st record
+		FETCH RELATIVE N	=> fetches Nth record from starting from current record
+smith
+allen
+ford   <--
+jones
+miller  2th
+blake
+
+Example :
+---------
+
+Declare C1 cursor SCROLL for select ename from emp
+Declare @name varchar(10)
+Open C1
+FETCH FIRST FROM C1 INTO @name
+print @name
+FETCH ABSOLUTE 5 FROM C1 INTO @name
+print @name
+FETCH RELATIVE 2 FROM C1 INTO @name
+print @name
+FETCH LAST FROM C1  INTO @name
+print @name
+FETCH PRIOR FROM C1 INTO @name
+print @name
+close c1
+deallocate c1
+
+
+blake
+clark
+hemanth
+king
+turner
+adams
+james
+archana
+miller
+
+output :
+--------
+
+blake
+turner
+james
+miller
+archana
+
+
+-- write a prog to print names in reverse order ( last to first )
+
+
+DECLARE C1 CURSOR SCROLL FOR SELECT ENAME FROM EMP
+DECLARE @name varchar(10)
+OPEN C1
+Fetch LAST FROM C1 INTO @name
+WHILE( @@FETCH_STATUS=0)
+BEGIN
+  print @name
+  FETCH PRIOR FROM C1 INTO @name
+END
+CLOSE C1
+DEALLOCATE C1
+
+OUTPUT:
+-------
+
+miller
+archana
+james
+adams
+turner
+king
+hemanth
+clark
+blake
+
+
+-- program to for display every 2nd record or Even records
+
+
+DECLARE C1 CURSOR SCROLL FOR SELECT ENAME FROM EMP
+DECLARE @name varchar(10)
+OPEN C1
+FETCH RELATIVE 2 FROM C1 INTO @name
+WHILE(@@FETCH_STATUS=0)
+BEGIN
+ PRINT @name
+ FETCH RELATIVE 2 from C1 INTO @name
+End
+Close c1
+Deallocate C1
+
+STATIC   VS  DYNAMIC Cursors :
+------------------------------
+
+  -> if cursor is static then we if we make changes in base table the change are not reflected on CURSOR
+
+7788		hemanth		6300
+
+
+declare c1 cursor STATIC FOR SELECT sal from emp where empno=7788
+declare @sal money
+OPEN C1
+update emp set sal = 2000 where empno=7788
+fetch c1 into @sal
+print @sal
+CLOSE C1
+DEALLOCATE C1
+
+output :   6300
+
+
+DYNAMIC CURSORS :
+-----------------
+
+  => if cursor is dynamic then if we make changes in base table that changes are reflected to cursor
+
+  => By default Cursor is Dynamic
+
+
+7788	hemanth		2000
+
+declare c1 cursor DYNAMIC FOR SELECT sal from emp where empno=7788
+declare @sal money
+OPEN C1
+update emp set sal = 5000 where empno=7788
+fetch c1 into @sal
+print @sal
+CLOSE C1
+DEALLOCATE C1
+
+o/p: 5000    
+
+note: updated salary fetching into @sal variable
+ 
+
+
+
+

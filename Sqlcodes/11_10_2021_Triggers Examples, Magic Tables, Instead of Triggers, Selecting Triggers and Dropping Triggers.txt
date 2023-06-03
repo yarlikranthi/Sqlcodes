@@ -1,0 +1,301 @@
+
+-- Write a trigger to not allow UPDATE on empno ? 
+
+Create or Alter trigger T3
+ON EMP
+AFTER UPDATE 
+AS
+ IF UPDATE(EMPNO) 
+ Begin
+  ROLLBACK;
+  RAISERROR('EMPNO CANNOT BE UPDATED',15,1);
+ END
+
+TESTING :
+---------
+
+UPDATE EMP SET EMPNO=7788 WHERE EMPNO=7902
+
+Error :
+-------
+
+Msg 50000, Level 15, State 1, Procedure T3, Line 8 [Batch Start Line 14]
+EMPNO CANNOT BE UPDATED
+Msg 3609, Level 16, State 1, Line 15
+The transaction ended in the trigger. The batch has been aborted.
+
+
+
+MAGIC TABLES :
+--------------
+
+I.  INSERTED
+II. DELETED
+
+
+=> with the help of magic tables in triggers we can access data affected by DMLs
+
+=> the record user is trying to insert it copies to inserted table
+
+      Insert into emp values ( 100, 'ABC', 'CLERK', 4000 )   => inserted
+
+							empno	ename	job	sal
+							100	abc	clerk	4000
+
+=> the record user is trying to delete is copied to delete tables
+
+      Delete from emp where empno=7369    => DELETED
+
+						empno	ename	job	sal
+						100	abc	clerk	4000
+
+=> the record user is trying to update is copied to both INSERTED & DELETED tables
+
+      7369	800
+
+	update employ set sal=2000 where empno=7369      => DELETED
+							    empno	sal
+							    7369	800
+
+							    INSERTED
+							    empno	sal
+							    7369	2000
+
+Example
+-------
+
+ Create table INSERTED( empno int, ename varchar(10), job varchar(10), sal money)
+
+ Create table DELETED( empno int, ename varchar(10), job varchar(10), sal money)
+
+
+=> Create a trigger to not to allow user to decrement salary ?
+
+			or
+
+   write a trigger program to restrict if updated salary is lessthan Existing 
+
+Inserting data into tables :
+----------------------------
+ 
+ insert into deleted values ( 1001, 'ABC', 'CLERK',4000 );
+
+ insert into inserted values ( 1001, 'ABC', 'CLERK',6000 );
+
+Trigger :
+---------
+
+create or alter trigger t4
+on EMP 
+AFTER UPDATE
+AS
+ DECLARE @newsal money, @oldsal money
+ SELECT @oldsal = sal FROM Deleted
+ SELECT @newsal = sal FROM Inserted
+ if @newsal < @oldsal 
+    BEGIN
+      ROLLBACK;
+      RAISERROR('SAL CAN NOT BE DECREMENTED',15,1);
+    END
+
+
+testing:
+--------
+
+UPDATE EMP SET SAL = 1000 WHERE EMPNO=7788
+
+
+Msg 50000, Level 15, State 1, Procedure t4, Line 11 [Batch Start Line 37]
+SAL CAN NOT BE DECREMENTED
+Msg 3609, Level 16, State 1, Line 38
+The transaction ended in the trigger. The batch has been aborted.
+
+
+Example 5 :
+-----------
+
+Create table emp_resign
+( empno int,
+  ename varchar(10),
+  dor date 
+)
+
+EMP_RESIGN
+empno	ename	hiredate	dor
+
+=> write a trigger to insert details into emp_resign table when employee resigns
+
+
+create OR ALTER Trigger t5
+on EMP
+AFTER DELETE
+as
+BEGIN
+ insert into emp_resign SELECT EMPNO, ENAME, GETDATE() FROM DELETED
+END
+
+    
+testing :
+---------
+
+
+DELETE FROM EMP WHERE EMPNO=7788
+
+SELECT * FROM EMP_RESIGN
+
+
+Example6 :
+----------
+
+-- Write a trigger program  to insert emp name and salary and to generate empid, comm. and doj to insert into    emp66 table ?
+
+Create table emp66
+( empid int,
+  ename varchar(10),
+  sal money,
+  comm money,
+  hiredate date
+)
+
+Create or alter trigger t6
+ON EMP66
+INSTEAD OF INSERT
+AS
+ declare @name, varchar(10), @sal money
+ delcare @eid int, @comm money, @doj date
+ SELECT @name=ename, @sal=sal from Inserted
+ Select @eid=IsNull( Max(empid),0)+1 from emp66       
+ SET @comm = @sal * 0.1  
+ set @doj = getdate()     
+ Insert Into Emp66 values( @eid, @name, @sal, @comm, @d);
+
+Testing :
+--------
+
+ Insert into Emp66(ename,sal) values( 'ABC',5000)
+
+ Insert into Emp66(ename,sal) values( 'XYZ',3000)
+
+ SELECT * FROM EMP66
+	
+1	ABC	5000.00	500.00	2021-10-11
+2	XYZ	3000.00	300.00	2021-10-11
+
+
+
+AUDITING :-
+-----------
+
+  => monitoring day-to-day activities on tables
+
+  => day-to-day activites are caputred in tables called as AUDTING tables
+
+
+** create a emp_audit table with Uname, operation, optime, new_eno, New_ename new_sal, Old_ename, Old_sal
+
+ Create table emp_auditing
+( UNAME varchar(10),
+  Operation varchar(10),
+  optime datetime,
+  new_eno int,
+  new_ename varchar(10),
+  new_sal money,
+  Old_eno int,
+  old_ename varchar(10),
+  old_sal money
+)
+
+-- Trigger program for to insert data into emp_auditing table whenever to perform INSERT,UPDATE & DELETE    commanads on EMP table
+
+Create or  alter trigger t7
+ON EMP
+AFTER INSERT, UPDATE, DELETE
+AS
+ Declare @neweno int, @newename varchar(10), @newsal money
+ Declare @oldeno int, @oldename varchar(10), @oldsal money
+ Declare @op varchar(10)
+ Declare @cnt1 int, @cnt2 int
+ Select @neweno=empno, @newename=ename, @newsal=sal from Inserted
+ Select @oldeno=empno, @oldename=ename, @oldsal=sal from Deleted
+ Select @cnt1=Count(*) from Inserted     -- 1
+ Select @cnt2=Count(*) from Deleted    -- 1
+ if @cnt1=1 and @cnt2=0
+    set @op='INSERT'
+ else if @cnt1=0 and @cnt2=1
+    set @op='DELETE'
+ else
+    set @op='UPDATE'
+ Insert into emp_auditing values( user_name(), @op, getdate(), @neweno, @newename, @newsal, 
+                               @oldeno, @oldename, @oldsal )
+
+
+testing :
+---------
+  
+ Testing :
+---------
+
+Insert into emp values( 1001, 'anand', 5000, 100,  getdate(), 'clerk', 7839, 10 )
+
+select * from emp_auditing
+
+Update emp set sal= sal + 1000 where empno=7902
+
+select * from emp_auditing
+
+Delete from emp where empno=1001
+
+select * from emp_auditing
+
+  delete from emp where empno=7788
+
+  udpate emp set sal= sal + 100 where empno=7369
+
+
+** to see the created list of the triggers
+
+      select * from sys.triggers
+
+** to see the trigger names and table names
+
+  select t1.name, t2.name from sys.triggers t1, sys.tables t2
+            where t1.parent_id = t2.object_id
+
+** Dropping triggers
+
+   Drop Trigger <trigger_name>
+
+ex:
+
+  Drop trigger my_trig
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

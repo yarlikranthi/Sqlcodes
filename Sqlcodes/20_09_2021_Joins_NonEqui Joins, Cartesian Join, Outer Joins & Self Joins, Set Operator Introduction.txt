@@ -1,0 +1,510 @@
+
+II. NON EQUI-JOIN :
+--------------------
+
+  -> To Retrieving data from morethan one table in a single query without using Equality operator is called
+     as Non-Equi Join
+
+  -> In Non-Equi Join Queries, Join conditions are compared with >, <, >=, <=, =, between, not between, etc.,
+     operators
+
+-- waq to display employee details and corresponding each employee grade
+
+EMP
+----
+EMPNO	ENAME	SAL	DEPTNO
+----	-----	----	------
+7369	smith	800	10
+7499	allen	1400	20
+7566	jones	3000	20
+7698	blake	2800	30
+7839	king	5000	10
+7788	scott	1300	20
+
+Salgrade 
+--------
+grade	losal	hisal
+-----	----	-----
+1	800	1399
+2	1400	1999
+3	2000	3999
+4	4000	4999
+5	5000	9999
+
+     select Emp.*, Grade from Emp, Salgrade where Sal Between Losal and Hisal;
+
+output :
+--------
+									Grade
+									-----
+7369	smith	800.00	NULL	2021-08-28	CLERK	7902	20	1
+7876	adams	1100.00	NULL	1983-01-12	CLERK	7788	20	1
+7900	james	950.00	NULL	1981-12-03	CLERK	7698	30	1
+7521	ward	1250.00	NULL	1981-02-22	SALESMAN7698	30	2
+7654	martin	1250.00	1400.00	1981-09-28	SALESMAN7698	30	2
+7934	miller	1300.00	NULL	1982-01-23	CLERK	7782	10	2
+7499	allen	1600.00	300.00	2021-09-09	SALESMAN7698	30	3
+7844	turner	1500.00	0.00	1981-09-08	SALESMAN7698	30	3
+7566	jones	2975.00	NULL	1981-04-02	MANAGER	7839	20	4
+7698	blake	2850.00	NULL	1981-05-01	MANAGER	7839	30	4
+7782	clark	2450.00	NULL	1981-06-09	MANAGER	7839	10	4
+
+
+Example for Equi + Non Equi Join :
+----------------------------------
+
+  -- waq to display employee name corresponding employee dept. name with grades
+
+          Select Ename, Dname, grade from Emp, Dept, Salgrade
+						where Emp.Deptno=Dept.Deptno
+								and
+						  sal between losal and hisal
+
+  -- waq to display employee name corresponding employee dept. name of grades 2 employess
+
+Select Ename, Dname, grade from Emp, Dept, Salgrade
+						where Emp.Deptno=Dept.Deptno
+								and
+						  sal between losal and hisal
+								and
+							      grade = 2
+
+III. CARTESIAN JOIN :
+---------------------
+
+   -> this join is also called as Cross Join 
+
+   -> To Retrieving data from morethan one table is single query without using any condition is called as       Cartesian join
+
+   -> This join displays output like no.of records in table1 is multiply with no.of records in table2
+
+   -> if table1 contains 8 rows , table2 contains 8 rows then cross output is 64 (8x8) rows/records
+
+a = { 1, 2, 3 }  3 
+ 
+b = { 4, 5 }     2
+
+
+a x b = { (1,4)(2,4)(3,4),(1,5)(2,5),(3,5) }
+
+
+Example :
+---------
+
+   Select * From Emp, Dept;
+
+output :
+--------
+
+7369	smith	800.00	NULL	2021-08-28	CLERK	7902	20	10	ACCOUNTING	NEW YORK
+7499	allen	1600.00	300.00	2021-09-09	SALESMAN	7698	30	10	ACCOUNTING	NEW YORK
+7521	ward	1250.00	NULL	1981-02-22	SALESMAN	7698	30	10	ACCOUNTING	NEW YORK
+7566	jones	2975.00	NULL	1981-04-02	MANAGER	7839	20	10	ACCOUNTING	NEW YORK
+7654	martin	1250.00	1400.00	1981-09-28	SALESMAN	7698	30	10	ACCOUNTING	NEW YORK
+7698	blake	2850.00	NULL	1981-05-01	MANAGER	7839	30	10	ACCOUNTING	NEW YORK
+7782	clark	2450.00	NULL	1981-06-09	MANAGER	7839	10	10	ACCOUNTING	NEW YORK
+7788	hemanth	3000.00	NULL	2021-09-14	ANALYST	7566	20	10	ACCOUNTING	NEW YORK
+7839	king	5000.00	NULL	1981-11-17	PRESIDENT	NULL	10	10	ACCOUNTING	NEW YORK
+7844	turner	1500.00	0.00	1981-09-08	SALESMAN	7698	30	10	ACCOUNTING	NEW YORK
+
+
+IV. OUTER JOIN :
+----------------
+
+  -> In This join it displays matching records from table1 and table2 and un-matched records from either table1      or table2 or both tables
+ 
+  -> Outer Joins are classified into 3 types
+
+             i. LEFT OUTER JOIN
+
+            ii. RIGHT OUTER JOIN
+
+           iii. FULLOUTER JOIN
+
+i. LEFT OUTER JOIN :
+--------------------
+
+  -> In this joins first displays mathching records from table1 and table2 and un-matched records LEFT side of      the table on JOIN Condition
+
+         select empno, ename, job, sal, emp.deptno, dept.deptno, dname, loc
+						from emp left outer join dept
+							  ON ( emp.deptno=dept.deptno)
+
+
+note: LEFT outer join returns Equi Join when joining tables are maintaining PRIMARY & FOREIGN KEY consttraints
+
+dept
+----
+deptno(pk)	dname	loc
+10
+20
+30
+40
+
+emp
+----
+
+empno	ename	sal	deptno(FK) references dept_mas(deptno)
+-----	-----	----	------
+7788	scott	3000	20
+7369	smith	800	10
+7499	allen	1300	50    x not accepted
+7839	king	5000	10
+7698	blake	3000	30
+
+
+
+ii. RIGHT OUTER JOIN :
+-----------------------
+
+  -> In this joins first displays mathching records from table1 and table2 and un-matched records RIGHT side of      the table on JOIN Condition
+
+ 	select empno, ename, job, sal, emp.deptno, dept.deptno, dname, loc
+						from emp right outer join dept
+							  ON ( emp.deptno=dept.deptno)
+
+7566	jones	MANAGER	2975.00	20	20	RESEARCH	DALLAS
+7788	hemanth	ANALYST	3000.00	20	20	RESEARCH	DALLAS
+7876	adams	CLERK	1100.00	20	20	RESEARCH	DALLAS
+7902	archana	ANALYST	3000.00	20	20	RESEARCH	DALLAS
+7499	allen	SALESMAN1600.00	30	30	SALES		CHICAGO
+7521	ward	SALESMAN1250.00	30	30	SALES		CHICAGO
+7654	martin	SALESMAN1250.00	30	30	SALES		CHICAGO
+7698	blake	MANAGER	2850.00	30	30	SALES		CHICAGO
+7844	turner	SALESMAN1500.00	30	30	SALES		CHICAGO
+7900	james	CLERK	950.00	30	30	SALES		CHICAGO
+NULL	NULL	NULL	NULL	NULL	40	OPERATIONS	BOSTON        => un-matched record
+
+
+iii. FULL OUTER JOIN :
+----------------------
+
+  -> In this joins, first displays matching records from table1 and table2 and un-matched records from both      tables
+
+ 		   	select empno, ename, job, sal, emp.deptno, dept.deptno, dname, loc
+						from emp full outer join dept
+							  ON ( emp.deptno=dept.deptno) order by dept.deptno
+
+
+output :
+--------
+
+7788	hemanth	ANALYST	3000.00	NULL	NULL	NULL	NULL		-- left outer join un-matched recs
+7902	archana	ANALYST	3000.00	NULL	NULL	NULL	NULL
+7934	miller	CLERK	1300.00	10	10		ACCOUNTING	NEW YORK
+7782	clark	MANAGER	2450.00	10	10		ACCOUNTING	NEW YORK
+7839	king	PRESIDENT	5000.00	10	10	ACCOUNTING	NEW YORK
+7876	adams	CLERK	1100.00	20	20		RESEARCH	DALLAS
+7369	smith	CLERK	800.00	20	20		RESEARCH	DALLAS
+7566	jones	MANAGER	2975.00	20	20		RESEARCH	DALLAS
+7654	martin	SALESMAN	1250.00	30	30	SALES		CHICAGO
+7698	blake	MANAGER	2850.00	30	30		SALES		CHICAGO
+7499	allen	SALESMAN	1600.00	30	30	SALES		CHICAGO
+7521	ward	SALESMAN	1250.00	30	30	SALES		CHICAGO
+7900	james	CLERK	950.00	30	30		SALES		CHICAGO
+7844	turner	SALESMAN	1500.00	30	30	SALES		CHICAGO 
+NULL	NULL	NULL	NULL	NULL	40		OPERATIONS	BOSTON   -- right outer join un-matched recs
+
+
+V. SELF JOIN :
+--------------
+
+   -> To Join the tables itself is called as self join
+
+   -> In from clause table names are same
+
+   -> in Self join a record in one table joned wiht antoher record of same table
+
+   -> To write the self join queries table Alaises are mandatory
+
+   
+ example:
+---------
+
+      select m.empno, m.ename, e.empno, e.ename from emp m, emp e;
+
+Emp  M				Emp    E
+---				---
+empno	ename	mgr		empno	ename	mgr
+-----	-----	----		-----	------	-----
+7369	smith	7902		7369	smith	7902		
+7566	jones	7839		7566	jones	7839
+7698	blake	7839		7698	blake	7839
+7839	king			7839	king
+7788	scott	7566		7788	scott	7566
+7902	ford	7566		7902	ford	7566	
+7499	allen	7698		7499	allen	7698
+
+  -- waq to display Superiors(Bosses) and their Sub-Ordinates(Employees)
+
+          Select M.Ename as Boss_Name, E.Ename as Employ_name from Emp M, Emp E
+						Where M.Empno = E.Mgr 
+						      7566     =  7566
+
+JONES	SCOTT
+JONES	FORD
+BLAKE	ALLEN
+KING	JONES
+KING	BLAKE
+FORD	SMITH
+
+
+note: to write self join queries, joning tables should be contains SELF RELATION/SELF FOREIGN KEY
+
+
+
+-- WAQ to display who getting morethan their Bosses salaries
+
+       
+          Select E.Ename as Employ_name, e.sal as Employ_Salary, 
+			M.Ename as Boss_Name, M.Sal as Boss_Sal  from Emp M, Emp E
+						Where M.Empno = E.Mgr 
+							    and
+						      E.sal > M.Sal
+
+output:
+-------
+employ	emp_sal	 boss	boss_sal
+------	-------	------	--------
+hemanth	3000.00	jones	2975.00
+archana	3000.00	jones	2975.00
+
+
+
+  -- waq to display who are joined before joining their bosses
+
+        select e.ename as employ_name, e.hiredate as employ_doj,
+		          m.ename as boss_name, m.hiredate as boss_doj
+				from emp m, emp e
+					where m.empno = e.mgr
+						  and
+					   e.hiredate < m.hiredate
+
+  -- waq to display which employees are reporting to BLAKE
+
+         select E.Ename as employee_name from Emp M, Emp E
+						where M.Empno = E.mgr
+							     and
+						      M.Ename='BLAKE'
+
+ANSI JOINS :
+------------
+
+  -> We write a join queries without using WHERE condition by using ANSI join syntaxes
+
+i. Equi Join :
+--------------
+
+syntax :
+--------
+
+   select columns from t1  join t2 ON <condition>;
+
+   select columns from t1  join t2 ON <condition> Join t3 On <condition>,...
+
+example: EQUI JOIN using ANSI Style :
+-------------------------------------
+
+   select empno, ename, job, sal, emp.deptno, dept.dname, dname, loc
+			from emp join dept ON( emp.deptno=dept.deptno)
+
+To Three tables : ( EQUI + NON EQUI ) using ANSI STYLE :
+---------------------------------------------------------
+
+   select empno, ename, job, sal, emp.deptno, dept.dname, dname, loc, Grade
+			from emp join dept ON( emp.deptno=dept.deptno)
+ 				 Join Salgrade  ON( Sal between losal and hisal)
+			
+   
+
+Today Excercise :
+-----------------
+
+  -- Waq to display who are joined in the same date
+
+
+  -- waq to display BLAKE's manager name
+
+
+Exercise :
+----------
+
+4 TEAMS
+-------
+
+TEAMS
+-----
+ID	TEAM_NAME
+---	---------
+1	CSK
+2	MI
+3	RCB
+4	SRS
+
+-- waq to display following format output 
+
+	CSK	vs	MI
+	MI	vs	RCB
+	RCB	vs	SRS
+        .
+        .
+
+Outer joins exercises :
+-----------------------
+
+emp_db					dept_db
+------					-------
+eno	ename	dno			dno	dname	loc
+---	-----	---			---	-----	---
+101	king	10			10	acc	hyd
+102	scott	30			20	res	sec
+103	jones	20			30	fin	chennai
+104	allen	50			40 	admin	banglore
+105	smith	10
+
+
+ 1. display only unmatched records from leftside table ?
+
+ 2. display only unmatched records from rightside table ?
+
+ 3. display only unmatched records from both tables
+
+
+SET OPERATORS :
+---------------
+
+  -> Set Operators are used to join outputs of SELECT statments
+
+rules :
+-------
+
+
+  -> no.of columns return by select statments should be same
+
+  -> corresponding columns datatypes must be same
+
+Types of Set Operators :
+------------------------
+i. UNION
+
+ii. UNION ALL
+
+iii. INTERSECT
+
+iv. EXCEPT
+
+A = { 1, 2, 3, 4 }
+
+B = { 1 ,2, 5, 6 }
+
+A UNION B  = { 1, 2, 3, 4, 5, 6 } 
+
+A UNION ALL B = {1,2,3,4,1,2,5,6 }
+
+A INTERSECT B = { 1, 2 }
+
+A EXCEPT B  = { 3, 4 }
+
+B EXCEPT A  = { 5, 6 } 
+         
+syntax :
+--------
+
+SELECT STATEMENT1
+Union/Union All/Intersect/Except
+SELECT STATEMENT 2
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+							
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+stu_info:
+---------
+
+std_mas:
+--------
+std_id,  std_name,  class,
+
+std_address:
+------------
+std_id, hno, street, city, pincode, 
+
+std_marks:
+----------
+std_id,  maths, phys, chem, 
+
+std_grade:
+----------
+std_id, total, avg. grade, rank
+
+
+1
+.
+.
+.
+100
+
+std_prograss report
+--------------------
+
+  std_id, std_name, class, maths, phys, chem, total, avg, grade, rank
+
+
+
+

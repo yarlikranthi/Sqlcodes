@@ -1,0 +1,448 @@
+--> Create following proc & function to implement various bank transactions
+
+i. account opening (procedure)
+
+validations:
+------------
+
+  -> account no. should be generate automatically
+
+           ex: sbi1, sbi2, ....
+
+  -> account type accepts either 's' or 'c'
+
+  -> Opening date will take today
+
+  -> Mobileno should be unique
+
+  -> Minimum opening balance rs.500/-
+
+
+ii.account closing (procedure)
+
+     -> Once customer close the account then take records backup
+
+iii. balance enquiry(scalar valued function)
+
+iv. money deposit(procedure)
+
+v. money withdrawl(procedure)
+
+vi.money transfer(procedure)
+
+vii. account statement from two given dates (table valued function)
+
+viii.mini statement( table valued function)
+
+
+** Table creations **
+
+Bank_mas :
+----------
+
+Create table Bank_Mas(Accno varchar(10),
+		      Cname varchar(20),
+		      Address varchar(20),
+		      Mobileno Bigint,
+		      Odate date,
+		      acc_type char(1),
+		      Balance Money
+                     )
+
+Bank_Trans:
+-----------
+
+
+Create table Bank_Trans
+( Txn_Id Int,
+  Saccno varchar(10),
+  Daccno varchar(10),
+  tdate date,
+  Ttype char(2),
+  Tamount Money
+)
+
+Sequences :
+-----------
+
+-- Sequence for generate account Numbers
+
+Create Sequence accno_seq
+Start with 1
+Increment by 1
+
+-- Sequence for to generate txn_ids
+
+Create sequence txn_id_seq
+Start with 1
+Increment by 1
+
+Procedures :
+------------
+
+ -- Procedures for to open a new account
+
+Create or Alter Procedure New_Acc_Proc
+  @Cname varchar(20), @address varchar(20),
+  @Mobileno Bigint, @acc_type char(1), @balance Money
+AS
+ declare @cnt int
+ select @cnt=count(*) from bank_mas where mobileno=@mobileno
+  if @acc_type not in ( 's','c') 
+      raiserror('Invalid Account type',15,1)
+  else if @cnt=1                                                        
+     raiserror('Mobileno Already Registered',15,1)
+  else if len(@mobileno)!=10 
+     raiserror('Invalid MobileNo....',15,1)
+  else if @balance <500 
+     raiserror('Min. Opening Balance Rs.500/-.',15,1)
+  else
+   BEGIN
+    Insert Into bank_mas values( ('sbi' + cast( next value for accno_seq as varchar)), 
+				 @cname, @address,@mobileno,getdate(), @acc_type, @balance)
+    print 'Account created successfully'
+   END
+
+Testing :
+---------
+
+EXECUTE NEW_ACC_PROC 'KING','HYD', 9000994005,'S',1500
+
+EXECUTE NEW_ACC_PROC 'SCOTT','SEC', 9000994006,'C',3000
+
+SELECT * FROM BANK_MAS
+
+
+OUTPUT:
+-------
+
+sbi1	KING	HYD	9000994005	2021-10-13	S	1500.00
+sbi2	SCOTT	SEC	9000994006	2021-10-13	C	3000.00
+
+INVALID DATA:
+-------------
+
+EXECUTE NEW_ACC_PROC 'JONES','HYD', 900099400,'C',5000      => Invalid mobileno
+
+EXECUTE NEW_ACC_PROC 'JONES','HYD', 9000994005,'C',5000      => mobileno already registered
+
+EXECUTE NEW_ACC_PROC 'JONES','HYD', 9000994007,'X',5000      => invalid account type
+
+EXECUTE NEW_ACC_PROC 'JONES','HYD', 9000994007,'C',400       => Minimum bal erorr
+
+
+      
+Module 2 :
+----------
+
+-> create magic tables
+
+create table inserted(temp int )
+create table deleted(temp int )
+
+
+Create table Bank_Backup(Accno varchar(10),
+		         Cname varchar(20),
+		         Address varchar(20),
+		         Mobileno Bigint,
+		         Odate date,
+		         acc_type char(1),
+		         Balance Money
+                     )
+
+trigger program :
+-----------------
+
+Create or Alter Trigger del_trig
+On Bank_mas
+After DELETE
+As
+Begin
+  Insert Into Bank_Backup SELECT * from Deleted
+  print 'Backup taken successfully'
+End
+
+Testing :
+---------
+
+DELETE FROM BANK_MAS WHERE ACCNO='SBI3'
+
+select * from bank_mas
+
+select * from bank_backup
+
+
+Module 3 :
+----------
+
+  -> to check account Balance
+
+Create or Alter Function chk_bal
+ ( @accno varchar(10) )              -- sbi1
+    Returns Money
+As
+Begin
+  Declare @bal money
+  Select @bal=balance from bank_mas where accno=@accno
+  Return @bal
+End
+
+Testing :
+---------
+
+  SELECT DBO.CHK_BAL( 'SBI2')
+
+Module 4 :
+----------
+ 
+   -> To Deposit Amount
+
+Create or Alter Procedure Credit   
+@accno varchar(10), @tamt money      
+AS
+Begin
+ Update Bank_mas set Balance = Balance + @Tamt where Accno=@Accno
+ print 'amount credited'
+End
+
+Testing :
+---------
+
+Execute Credit 'SBI1', 1000
+
+SELECT * FROM BANK_MAS
+
+Module 5 :
+----------
+
+   -> Procedure for to withdraw amount
+
+Create or alter procedure Debit
+@accno varchar(10), @tamt money
+AS
+Begin
+ Update Bank_mas set Balance = Balance - @tamt where Accno=@Accno
+ print 'amount debited'
+End
+
+Testing:
+--------
+
+Execute Debit 'SBI1', 500
+
+SELECT * FROM BANK_MAS
+
+Module 6 :
+----------
+
+  -> Money Transter in between Accounts
+
+Create or Alter Procedure Acc_trans
+@saccno varchar(10), @daccno varchar(10), @tamt money
+AS
+Begin
+  EXECUTE Debit @saccno, @tamt
+  EXECUTE Credit @daccno, @tamt
+  print 'amount tranfered successfully'
+End
+
+Testing:
+--------
+
+SELECT * FROM BANK_MAS
+
+EXECUTE ACC_TRANS 'SBI1', 'SBI2',500
+
+SELECT * FROM BANK_MAS
+
+Module 7 :
+----------
+
+   -> account statement from two given dates (table valued function)
+
+Create or Alter Function Acc_statement
+( @accno varchar(10), @sdate date, @edate date ) RETURNS TABLE
+AS
+ RETURN( SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY TDATE ASC) AS SNO, Accno, Tdate, Ttype, Tamount
+				FROM BANK_TRANS WHERE ACCNO=@ACCNO AND TDATE BETWEEN @SDATE AND @EDATE) E )
+
+Testing :
+---------
+
+  SELECT *  FROM DBO.ACC_STATEMENT('SBI1')
+
+
+Module 8 :
+-----------
+
+   -> To generate Account mini statement( table valued function)
+
+Create or Alter Function Mini_Statement
+( @accno varchar(10) ) RETURNS TABLE
+AS
+RETURN( SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY TDATE DESC) AS SNO, Accno, Tdate, Ttype, Tamount
+				FROM BANK_TRANS WHERE ACCNO=@ACCNO  ) E
+        	          WHERE E.SNO<=5)
+
+Testing :
+---------
+
+  SELECT *  FROM DBO.MINI_STATEMENT('SBI1')
+
+
+Trigger on Bank_Trans :
+-----------------------
+
+  -> create a bank trans. table with txn_it, accno, tdate, ttype and tamount
+
+Validations:
+-------------
+
+  -> Tan_id generate automatically
+
+  -> if Tran. type is 'w' the Source Accno should be available in Bank Server DB 
+ 
+  -> if tran. type is AT then Source and Destination Accounts should be available in bank server db
+
+  -> Trans. date is system date
+
+  -> Trans. type accepts 'd' ( deposit), 'w' ( withdraw') or 'at' ( account transfer)
+ 
+  -> Mini. Trans. amount Rs.1
+
+  -> if Trans. type is 'd' no validations
+
+  -> if trans. type is 'w' or 'at' then first check available balance
+
+  -> if customer deposited amount then balance should be update in bank_master table
+
+  -> if customer withdraw/account tranfer then balance should be update in bank_master table
+
+
+Trigger program :
+-----------------
+
+
+Create or alter trigger bank_trans_trig
+On Bank_Trans
+AFTER INSERT
+AS
+Begin
+ Declare @scnt tinyint, @dcnt tinyint
+ Declare @saccno varchar(10), @daccno varchar(10), @ttype char(2), @tamt money
+ Select @saccno=saccno, @daccno=daccno, @ttype=ttype, @tamt=tamount from inserted
+ select @scnt=count(*) from bank_mas where accno=@saccno     
+ if @scnt=0
+    begin
+      rollback
+      raiserror('Invalid Source Account No....',15,1)
+    end
+ else if @tamt<0 
+      begin
+	    rollback
+        raiserror('Min. Trans. Amount Rs.1',15,1) 
+      end
+ else if @ttype='d'
+   begin
+     Execute Credit @saccno, @tamt      -- calling credit procedure
+   end
+ else if @ttype='w'
+   Begin
+    if (dbo.chk_bal(@saccno) - @tamt ) >0
+	   begin
+              Execute Debit @saccno, @tamt          -- calling debit procedure
+           end
+    else 
+	begin
+	  rollback
+          raiserror('In-sufficient Balance....',15,1)
+        end
+   End
+ else if @ttype='at'
+   begin
+      select @dcnt=count(*) from bank_mas where accno=@daccno         
+      if @dcnt=0
+	     begin
+	       rollback
+	       raiserror('Invalid Destination Account No....',15,1)
+	     end
+      else
+	    Begin
+          if (dbo.chk_bal(@saccno) - @tamt ) >0
+	        begin
+              Execute Acc_trans @saccno, @daccno, @tamt          -- calling A/c transfer procedure
+	        end
+         else  
+	       begin
+	         rollback
+             raiserror('In-sufficient Balance....',15,1)
+	      end
+        End
+	  end
+ else if @ttype not in ( 'd','w','at') 
+   begin
+     rollback
+     raiserror('Invalid Trans. Type.....',15,1)
+   end
+End
+
+Testing :
+---------
+
+valid input :
+-------------
+
+select * from bank_mas
+
+select * from bank_trans
+
+Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi1',null,getdate(), 'd',1000) 
+
+Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi1',null,getdate(), 'w',500) 
+
+Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi2',null,getdate(), 'w',1500) 
+
+Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi1','sbi2',getdate(), 'at',800) 
+
+select *from bank_mas
+
+select * from bank_trans
+
+Invalid Input:
+--------------
+
+ Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi21',null,getdate(), 'w',1500)  
+						 -- error invalid source account no
+
+ Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi1',null,getdate(), 'w',-1500)    
+						-- error min. trans. amt 
+
+ Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi10','sbi1',getdate(), 'at',1500)    
+						-- error invalid saccno
+
+ Insert into Bank_Trans values ( (Next value for txn_id_seq), 'sbi1','sbi2',getdate(), 'x',1500)    
+						 -- error invalid trans. type
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

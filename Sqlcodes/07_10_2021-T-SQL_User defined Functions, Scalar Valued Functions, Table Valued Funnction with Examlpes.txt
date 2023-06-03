@@ -1,0 +1,250 @@
+
+-- write a user defined function to calculate given two numbers
+
+
+Create or alter function calc( @x int, @y int, @op char(1) )
+                     Returns Decimal(5,2)
+                            as
+Begin
+ Declare @z decimal(5,2)
+ if @op='+' 
+     set @z = @x + @y;
+ if @op='-' 
+     set @z = @x - @y;
+ if @op='*' 
+     set @z = @x * @y;
+ if @op='/' 
+     set @z = @x / @y;
+return @z
+End                     
+
+** we can execute/call functions in different ways :
+----------------------------------------------------
+
+i. sql commands
+
+ii. another t-sql block
+
+iii. front-end applications
+
+Executing on SQL Prompt :
+-------------------------
+
+   SELECT DBO.CALC( 30, 40, '*') 
+
+o/p: 1200
+
+
+-- write a user defined function to input employe no and return corresponding employee name
+
+Create or alter function emp_name( @empno int ) returns varchar(20)
+			as
+begin
+ declare @ename varchar(20);
+ select @ename=ename from emp where empno = @empno;
+ return @ename
+end
+
+select dbo.emp_name(7839)
+
+
+-- Write a user defined function to input employee no. and return experinece
+
+Create or Alter Function Emp_expe( @empno int ) returns int
+                         as
+Begin
+ Declare @expe int
+ select @expe = datediff(yy,hiredate, getdate()) from emp where empno = @empno
+ return @expe
+End
+
+select dbo.emp_expe(7839)
+
+
+-- write a stored procedure to insert data into cric_info table
+
+     'sachin tendulkar'
+     'virot kohli'
+
+-- write a function to find first name
+
+-- write a function to find last name
+
+ ** call the functions inside procedure
+
+cric_info
+----------
+
+cid	fname	lname
+---	-----	------
+c1	sachin	tendulkar
+c2	virot	kohli
+
+-- write a Named Block program to increment employee salaries based on following conditions
+
+i. if employe grade 1 or 2 then 50%
+
+ii. if employee grade is 3 or 4 then 30%
+
+iii. for other grades 10%
+
+  and incremented details should be stored in Employee audit table
+
+
+Table creation:
+---------------
+
+ Create table emp_audit( Empno int, incr_date date, grade int, incr_amt decimal(10,2) )
+
+
+Function for to find grade :
+----------------------------
+
+Create or alter function grade( @empno int ) returns int
+                         as
+Begin
+ Declare @grade int
+ select @grade = grade from emp, salgrade where sal between losal and hisal and empno = @empno
+ return @grade
+End
+
+
+Stored Procedure to increment employee salaries :
+--------------------------------------------------
+
+Create or alter procedure emp_incr_proc        
+                     as
+   Declare e_cur cursor for select empno, sal from emp
+   Declare @eno int, @sal money, @grade int, @incr_amt money
+   Open e_cur
+   fetch next from e_cur into @eno, @sal      --- 7698	3990.00
+   While(@@fetch_status=0)
+   Begin
+    set @grade = dbo.grade(@eno)           -- calling function
+    if @grade in ( 1, 2 ) 
+       set @incr_amt = @sal * 0.5
+    else if @grade in ( 3, 4 ) 
+       set @incr_amt = @sal * 0.3
+    else
+       set @incr_amt = @sal * 0.1
+   Insert into emp_audit values( @eno, getdate(), @grade, @incr_amt)
+   update emp set sal = sal + @incr_amt where empno = @eno
+   Fetch next from e_cur into @eno, @sal       -- fetching next record
+  End
+  print 'salaries incremented successfully'
+  CLOSE E_cur
+  deallocate e_cur
+
+output:
+--------
+
+ Select * from emp_audit
+
+empno	incr_date	grade	int_amt
+-----	--------	------	-------
+7698	2021-10-07	5	399.00
+7782	2021-10-07	5	343.00
+7788	2021-10-07	5	860.00
+7839	2021-10-07	5	615.83
+7844	2021-10-07	4	773.66
+7876	2021-10-07	3	471.90
+7900	2021-10-07	2	617.50
+7902	2021-10-07	5	420.00
+7934	2021-10-07	3	507.00   
+   
+
+-> create a function that accept ordid and return order amount
+
+products
+prodid	pname	price
+100	A	1500
+101	B	2000
+102	C	1000
+
+orders
+ordid	prodid	qty
+----	------	---
+1000	100	3
+1000	101	2
+1000    102	1
+1001	100	2
+
+input: ordid - 1000
+
+output: amount =>  9500/-
+
+Create or alter function ord_amt( @ordid int ) returns money     --- 1000
+                         as
+Begin
+ declare c1 cursor for select prodid, qty from orders where ordid=@ordid
+ Declare @prodid int, @qty int, @amt money, @tot_amt money = 0
+ Open c1
+ Fetch next from c1 into @prodid, @qty      
+ While( @@fetch_status=0)
+ Begin
+   select @amt = @price * @qty from products where prodid=@prodid
+   set @tot_amt = @tot_amt + @amt;    -- 4500+4000+1000
+   Fetch next from c1 into @prodid, @qty   
+ End
+ print 'Total Price Rs.' + cast( @tot_amt as varchar )
+ close c1
+ deallocate c1
+End
+
+
+calling function :
+------------------
+
+ Select dbo.ord_amt(1000)
+
+
+ii. Table valued functins ( TVF ):
+----------------------------------
+
+  => table valued functions returns multiple rows
+
+  => return type of these functions must be table
+
+  => return expression must be select statement
+
+  => table valued functions allows only one statment and that statment must be reutrn statement
+
+  => table valued functions are invoked in FROM clause
+
+
+syntax:-
+
+  create or alter function <name> ( parameters if any ) RETURNS TABLE
+                       AS
+    RETURN( select statement)
+
+Example 1:-
+-----------
+
+-> Create a function that accept deptno and returns list of employees working in that dept?
+
+Create or alter function getEmpList(@dno int ) RETURNS TABLE
+AS
+ RETURN( SELECT * FROM EMP WHERE DEPTNO=@DNO)
+
+calling function :
+------------------
+
+ Select *from dbo.getEmpList(10)
+
+output:
+-------
+
+7782	clark	3773.00	NULL		1981-06-09	MANAGER	7839	10
+7839	king	6774.075NULL		1981-11-17	PRESIDENT	NULL	10
+7934	miller	2197.00	NULL		1982-01-23	CLERK	7782	10
+
+
+
+-- write a user defined function to find given year is leap year or not
+
+
+
+
+  
+  

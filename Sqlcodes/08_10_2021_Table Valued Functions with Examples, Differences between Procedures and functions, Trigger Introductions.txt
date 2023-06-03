@@ -1,0 +1,416 @@
+-- write a Named Block program to increment employee salaries based on following conditions
+
+i. if employe grade 1 or 2 then 50%
+
+ii. if employee grade is 3 or 4 then 30%
+
+iii. for other grades 10%
+
+  and incremented details should be stored in Employee audit table
+
+
+Table creation:
+---------------
+
+ Create table emp_audit( Empno int, incr_date date, grade int, incr_amt decimal(10,2) )
+
+
+Function for to find grade :
+----------------------------
+
+Create or alter function grade( @empno int ) returns int
+                         as
+Begin
+ Declare @grade int
+ select @grade = grade from emp, salgrade where sal between losal and hisal and empno = @empno
+ return @grade
+End
+
+
+Stored Procedure to increment employee salaries :
+--------------------------------------------------
+
+Create or alter procedure emp_incr_proc        
+                     as
+   Declare e_cur cursor for select empno, sal from emp
+   Declare @eno int, @sal money, @grade int, @incr_amt money
+   Open e_cur
+   fetch next from e_cur into @eno, @sal      --- 7698	3990.00
+   While(@@fetch_status=0)
+   Begin
+    set @grade = dbo.grade(@eno)           -- calling function
+    if @grade in ( 1, 2 ) 
+       set @incr_amt = @sal * 0.5
+    else if @grade in ( 3, 4 ) 
+       set @incr_amt = @sal * 0.3
+    else
+       set @incr_amt = @sal * 0.1
+   Insert into emp_audit values( @eno, getdate(), @grade, @incr_amt)
+   update emp set sal = sal + @incr_amt where empno = @eno
+   Fetch next from e_cur into @eno, @sal       -- fetching next record
+  End
+  print 'salaries incremented successfully'
+  CLOSE E_cur
+  deallocate e_cur
+
+output:
+--------
+
+ Select * from emp_audit
+
+empno	incr_date	grade	int_amt
+-----	--------	------	-------
+7698	2021-10-07	5	399.00
+7782	2021-10-07	5	343.00
+7788	2021-10-07	5	860.00
+7839	2021-10-07	5	615.83
+7844	2021-10-07	4	773.66
+7876	2021-10-07	3	471.90
+7900	2021-10-07	2	617.50
+7902	2021-10-07	5	420.00
+7934	2021-10-07	3	507.00   
+   
+
+-> create a function that accept ordid and return order amount
+
+products
+prodid	pname	price
+100	A	1500
+101	B	2000
+102	C	1000
+
+orders
+ordid	prodid	qty
+----	------	---
+1000	100	3
+1000	101	2
+1000    102	1
+1001	100	2
+
+input: ordid - 1000
+
+output: amount =>  9500/-
+
+Create or alter function ord_amt( @ordid int ) returns money     --- 1000
+                         as
+Begin
+ declare c1 cursor for select prodid, qty from orders where ordid=@ordid
+ Declare @prodid int, @qty int, @amt money, @tot_amt money = 0
+ Open c1
+ Fetch next from c1 into @prodid, @qty      
+ While( @@fetch_status=0)
+ Begin
+   select @amt = @price * @qty from products where prodid=@prodid
+   set @tot_amt = @tot_amt + @amt;    -- 4500+4000+1000
+   Fetch next from c1 into @prodid, @qty   
+ End
+ print 'Total Price Rs.' + cast( @tot_amt as varchar )
+ close c1
+ deallocate c1
+End
+
+
+calling function :
+------------------
+
+ Select dbo.ord_amt(1000)
+
+
+ii. Table valued functins ( TVF ):
+----------------------------------
+
+  => table valued functions returns multiple rows
+
+  => return type of these functions must be table
+
+  => return expression must be select statement
+
+  => table valued functions allows only one statment and that statment must be reutrn statement
+
+  => table valued functions are invoked in FROM clause
+
+
+syntax:-
+
+  create or alter function <name> ( parameters if any ) RETURNS TABLE
+                       AS
+    RETURN( select statement)
+
+Example 1:-
+-----------
+
+-> Create a function that accept deptno and returns list of employees working in that dept?
+
+Create or alter function getEmpList(@dno int ) RETURNS TABLE
+AS
+ RETURN( SELECT * FROM EMP WHERE DEPTNO=@DNO)
+
+calling function :
+------------------
+
+ Select *from dbo.getEmpList(10)
+
+output:
+-------
+
+7782	clark	3773.00	NULL		1981-06-09	MANAGER	7839	10
+7839	king	6774.075NULL		1981-11-17	PRESIDENT	NULL	10
+7934	miller	2197.00	NULL		1982-01-23	CLERK	7782	10
+
+
+-- write a user defined function to find given year is leap year or not
+
+
+-- write a user defined function to display top-n employees list
+
+Create or Alter function top_n( @n int ) 
+RETURNS TABLE
+AS
+
+  RETURN (Select sal from ( select sal, dense_rank() over( order by sal desc) as rnk from emp) E
+				where rnk <=@n )
+
+
+calling function :
+------------------
+
+ Select *from dbo.top_n(5)
+
+ Select *from dbo.top_n(2)
+
+-- write a user defined function to generate bank mini statmeent
+
+Table creation:
+---------------
+ 
+  Create table bank_trans( tno int, accno int, tdate date, ttype char(1), tamount decimal(9,2))
+
+Inserting data :
+----------------
+
+  insert into bank_trans values( 1, 101, '2021-10-02', 'd',1000), 
+                               ( 2, 101, '2021-10-03', 'w',200), 
+                               ( 3, 102, '2021-10-02', 'w',100), 
+                               ( 4, 101, '2021-10-04', 's',4000),
+                               ( 5, 101, '2021-10-02', 'd',300),
+                               ( 6, 101, '2021-10-02', 'w',500),
+                               ( 7, 101, '2021-10-02', 'w',1000)
+
+
+Function :
+----------
+
+Create or Alter Function Mini_stat( @accno int ) RETURNS TABLE
+AS
+  RETURN(  select * from ( Select accno, tdate,ttype,tamount,row_number() over ( order by tdate desc) as rno 
+				from bank_trans where accno=@accno ) as E
+					WHERE e.rno<=5 )
+
+
+CALLING FUNCTION :
+------------------
+
+	SELECT * FROM DBO.MINI_STAT(101)
+
+
+Differences between PROCEDURES & FUNCTIONS :
+--------------------------------------------
+
+		Procedures					Functions
+		----------					----------
+
+i.  may or may not return values				i. must be return a value
+
+ii. can return multiple value					ii. always returns one value
+
+iii. returns values using OUTPUT parameter			iii. returns value using RETURN statement
+
+iv. cannot be called from sql commands				iv. can be called from sql commands
+
+v. allows dmls							v. dml's doesn't allow
+
+vi. created to performs DMLs					vi. create to compute value
+
+vii. create procedure to update balance				vii. create function to get balance
+
+
+Differences between SCALAR valued and TABLE Valued functions?
+
+		
+		SCALAR						TABLE
+
+i. returns one value					i. returns records
+
+ii. return type must be scalar				ii. return type is always TABLE
+    type like int, varchar, etc., 
+
+iii. returns expression is scalar variable		iii. return expression is SELECT statement
+
+iv. Invoked in SELECT clause				iv. Invoked in FROM Clause
+
+
+Assignment :-
+
+CUSTOMERS
+CUST_ID(PK)   NAME	ADDR	PHONE	 EMAILID     AADHARNO    PANNO
+
+ACCOUNTS
+ACCNO(PK)	ODATE	ACTYPE	BAL   CUST_ID(FK)
+
+TRANSACTIONS
+TRID	TTYPE	TDATE	TAMT	ACCNO(FK)
+
+
+--> Create following proc & function to implement various bank transactions
+
+i. account opening (procedure)
+
+ii.account closing (procedure)
+
+iii. balance enquiry(scalar valued function)
+
+iv. money deposit(procedure)
+
+v. money withdrawl(procedure)
+
+vi.money transfer(procedure)
+
+vii. account statement from two given dates (table valued function)
+
+viii.mini statement( table valued function)
+
+
+Dropping Procedures :
+---------------------
+
+syn:-
+
+  Drop Procedure <procedure_name>;
+
+ex:-
+
+  Drop Procedure my_proc
+
+Dropping Functions:
+-------------------
+
+  Drop Function <function_name>;
+
+Ex:-
+
+  Drop Function my_fun
+
+TRIGGERS :
+----------
+
+  -> A Trigger is also a named TSQL block like procedure but executed implicitely/automatically by SQL SERVER      whenever user submits DML/DDL commands
+
+  -> Triggers are created
+
+         1. triggers are created to control DMLs
+         2. triggers are created to enforce complex rules and validations
+	 3. triggers are created to audit tables
+	 4. triggers are created to manage and generate values for primary key columns
+
+   -> Triggers are executed based on the Events
+
+syn:-
+
+CREATE OR ALTER TRIGGER <TRIGGER_NAME>
+ON <TABLE_NAME>
+AFTER / INSTEAD OF INSERT, UPDATE, DELETE
+AS
+ STATEMENTS
+
+AFTER triggers :
+----------------
+
+  -> If trigger is AFTER then SQL SERVER executed the trigger after executing DML command
+ 	
+INSTEAD OF Triggers:
+--------------------
+
+  -> if trigger is instead of then sql server executes the trigger instead of executing DMLs
+
+Example 1:
+----------
+
+  -- write a trigger program to restrict DMLs on EMP table on every SATURDAY/SUNDAY
+
+CREATE OR ALTER TRIGGER Holiday_trig
+ON EMP
+AFTER INSERT, UPDATE, DELETE
+AS
+  If DateName(dw,getdate()) in ('saturday','sunday') 
+     Begin
+      Rollback
+      RAISERROR( 'Week-ends, Trans. are not allowed',15,1)
+     End
+
+Testing:
+--------
+
+   Update emp set sal= sal + 100
+
+output:
+-------
+
+Error : 
+
+Msg 50000, Level 15, State 1, Procedure Holiday_trig, Line 8 [Batch Start Line 51]
+Week-ends, Trans. are not allowed
+Msg 3609, Level 16, State 1, Line 53
+The transaction ended in the trigger. The batch has been aborted.
+
+
+Example 2 :
+-----------
+
+  -- create a trigger to restrict dmls on emp table as following conditions..
+
+
+        MON - FRI  <10AM    >4PM
+
+	SAT  <10AM   >2PM 
+
+	SUN    HOLIDAY
+
+
+CREATE OR ALTER TRIGGER T2
+ON EMP
+AFTER INSERT , UPDATE, DELETE
+AS
+  IF DATEPART(DW,GETDATE()) BETWEEN 2 AND 6
+                   AND
+     DATEPART(HH,GETDATE()) NOT BETWEEN 10 AND 16
+   BEGIN
+    ROLLBACK
+    RAISERROR('Only Transaction Allows 10am to 4pm',15,1)
+   END
+  ELSE IF  DATEPART(DW,GETDATE()) = 7  AND DATEPART(HH,GETDATE()) NOT BETWEEN 10 AND 14
+   BEGIN
+     ROLLBACK
+     RAISERROR('Only Transaction Allows 10am to 2pm',15,1)
+   END
+  ELSE IF DATEPART(DW,GETDATE())=1 
+   BEGIN
+    ROLLBACK
+    RAISERROR('Today Sunday, Trans. are Not Allowed.',15,1)
+   END
+
+
+TESTING 
+-------
+
+  UPDATE EMP SET SAL=SAL+ 100
+
+  DELETE FROM EMP
+
+  INSERT INTO EMP VALUES( 1001,'ANAND','CLERK',7839,GETDATE(),4000,100,10)
+
+
+ 
+
+
+  
+  

@@ -1,0 +1,343 @@
+JOINS
+-----
+
+  -> To retrieving data from morethan one table in single query is called as Joins
+
+  -> Only SELECT statement supports Join Queries
+
+syntax:
+-------
+
+  select table1.column1, table1.column2, table2.col1, table2.column2,... 
+					from table1, table2
+						where <table1.column=table2.column>;
+
+  -> if 'n' tables are joined, there will be n-1 join condtions are required
+
+  -> Join conditions are placed in WHERE clause of SELECT statement
+
+  -> Join Queries are mainly used for to generate Reports like Salary Statements, Daily Reports, weekly,      monthly reports, Invoices, student prograss reports, etc.,
+
+TYPES OF JOINS :
+----------------
+
+  -> SQL SERVER supports 5 types of JOINS
+
+
+      i. Equi Join / Inner join / Simple Join
+
+    ii.  Non-Equi Join
+
+   iii. Cartesian Join
+
+    iv. Outer Joins
+
+	   a. right outer join
+
+           b. left outer join
+
+           c. full outer join
+
+     v. SELF Join
+
+  
+** To write any Join Queries Database returns one common error message is 'AMBIGUITY' Error
+
+Example :
+---------
+
+select deptno from emp, dept
+
+Msg 209, Level 16, State 1, Line 5
+Ambiguous column name 'deptno'.
+
+
+-> to overcome this error message preceeding common colum names to use either table names or table alaises
+
+
+table Alaise :
+--------------
+
+  -> Alaise Name is given to next to table name is called as table alaise
+
+  -> By using Table Aliase 
+
+             i. to improves the performance while executing queries
+
+            ii. to recuduce table name
+
+         ex:  Employ_Master_Table emt, Employee_Transaction_Table ett, Emp e, Dept d, etc.,
+
+example:
+--------
+
+   select emp.deptno from emp, dept
+
+                 or
+
+   Select e.deptno from emp e, dept d
+
+i. Equi Join :
+--------------
+
+  -> To Retrieving data from morethan one table in a single query by using Equality Operator in Join           conditions is called as Equi Join
+
+  -> To Write Equi Join Queries, Joining tables contains atleast one similar column name and corresponding 
+     columns datatype should be same.
+
+Example :
+---------
+
+EMP
+----
+empno	ename	sal	comm	hiredate	job		mgr	deptno
+-----	-----	------	-----	---------	--------	-----	-------
+7369	smith	800.00	NULL	1980-12-13	CLERK		7902	20
+7499	allen	1600.00	300.00	1981-02-21	SALESMAN	7698	30
+7521	ward	1250.00	NULL	1981-02-22	SALESMAN	7698	30
+7566	jones	2975.00	NULL	1981-04-02	MANAGER		7839	20
+7654	martin	1250.00	1400.00	1981-09-28	SALESMAN	7698	30
+7698	blake	2850.00	NULL	1981-05-01	MANAGER		7839	30
+7782	clark	2450.00	NULL	1981-06-09	MANAGER		7839	10
+7788	hemanth	3000.00	NULL	1982-12-09	ANALYST		7566	20
+7839	king	5000.00	NULL	1981-11-17	PRESIDENT	NULL	10
+7844	turner	1500.00	0.00	1981-09-08	SALESMAN	7698	30
+7876	adams	1100.00	NULL	1983-01-12	CLERK		7788	20
+7900	james	950.00	NULL	1981-12-03	CLERK		7698	30
+7902	archana	3000.00	NULL	1981-12-03	ANALYST		7566	20
+7934	miller	1300.00	NULL	1982-01-23	CLERK		7782	10      
+
+ 
+DEPT:
+-----
+deptno	dname		loc
+------	------		--------
+10	ACCOUNTING	NEW YORK
+20	RESEARCH	DALLAS
+30	SALES		CHICAGO
+40	OPERATIONS	BOSTON
+
+
+  -- write query to display employee details and corresponding each employee dept.details
+
+
+   Select * from Emp, Dept Where  emp.Deptno = dept.Deptno 
+
+
+output:
+-------
+
+7369	smith	CLERK		800.00	20	RESEARCH	DALLAS
+7499	allen	SALESMAN	1600.00	30	SALES		CHICAGO
+7521	ward	SALESMAN	1250.00	30	SALES		CHICAGO
+7566	jones	MANAGER		2975.00	20	RESEARCH	DALLAS
+7654	martin	SALESMAN	1250.00	30	SALES		CHICAGO
+
+  
+
+   select Empno, Ename, Job, Sal, Dept.Deptno, Dname, Loc From Emp, Dept
+								where Emp.Deptno=Dept.Deptno
+
+
+output:
+-------
+empno	ename	sal	comm	hiredate	job		mgr	deptno		dname	loc
+-----	-----	------	-----	---------	--------	-----	-------		-----	---
+7369	smith	800.00	NULL	1980-12-13	CLERK		7902	20		Reseach	Dallas
+7499	allen	1600.00	300.00	1981-02-21	SALESMAN	7698	30		Sales	Chicago
+
+
+
+-- waq to display who are working in NEW YORK Location
+
+     Select * from Emp, Dept Where Emp.Deptno=Dept.Deptno 
+					     and
+					Loc= 'NEW YORK'
+
+OUTPUT:
+-------
+
+7782	clark	2450.00	NULL	1981-06-09	MANAGER	  7839	10	10	ACCOUNTING	NEW YORK
+7839	king	5000.00	NULL	1981-11-17	PRESIDENT NULL	10	10	ACCOUNTING	NEW YORK
+7934	miller	1300.00	NULL	1982-01-23	CLERK	  7782	10	10	ACCOUNTING	NEW YORK
+
+-- waq to display who are working Sales and Research Depts. and their salaries >2000
+
+        select * from Emp, Dept Where Emp.Deptno = Dept.Deptno
+						and
+					   dname in ('sales','research')
+						 and
+						sal > 2000
+
+output:
+-------
+
+7566	jones	2975.00	NULL	1981-04-02	MANAGER	7839	20	20	RESEARCH	DALLAS
+7698	blake	2850.00	NULL	1981-05-01	MANAGER	7839	30	30	SALES		CHICAGO
+7788	hemanth	3000.00	NULL	1982-12-09	ANALYST	7566	20	20	RESEARCH	DALLAS
+7902	archana	3000.00	NULL	1981-12-03	ANALYST	7566	20	20	RESEARCH	DALLAS
+
+
+-- waq to display following format output
+
+      Mr. King is working in New York Location
+      Mr. Jones is working in Dallas Location
+
+        select 'Mr. ' + ename + ' is working in ' +  loc  + ' Location'
+							from emp , dept where emp.deptno=dept.deptno
+										and
+									  ename in ( 'king','jones')
+
+
+-- waq to display who are joined chicago location in 1981 and 1982 year
+
+       Select Emp.*, Loc From Emp, Dept Where Emp.Deptno = Dept.Deptno
+							and
+						    Loc = 'Chicago'
+							and
+						 Datepart(yy,Hiredate) in ( 1981,1982)
+
+output:
+-------
+
+7499	allen	1600.00	300.00	1981-02-21	SALESMAN	7698	30	CHICAGO
+7521	ward	1250.00	NULL	1981-02-22	SALESMAN	7698	30	CHICAGO
+7654	martin	1250.00	1400.00	1981-09-28	SALESMAN	7698	30	CHICAGO
+7698	blake	2850.00	NULL	1981-05-01	MANAGER		7839	30	CHICAGO
+7844	turner	1500.00	0.00	1981-09-08	SALESMAN	7698	30	CHICAGO
+7900	james	950.00	NULL	1981-12-03	CLERK		7698	30	CHICAGO
+
+
+-- waq to display who are joined in 1982, 1983 in NEW YORK location
+
+-- waq to display ACCOUNTING, RESEARCH depts. CLERKs
+
+-- waq to display in DALLAS location who are joined
+
+-- waq to display In each location Howmany Employees are working
+
+  select  loc , count(*) as no_of_emps from emp, dept where emp.deptno = dept.deptno Group by Loc 
+
+-- waq to display in each dept. name howmany employees are working
+
+
+-- waq to display dept.details and dept.wise min, max, sum of salares and no.of employees
+
+
+output:
+-------
+
+10	accounting	new york	800	3000	12000	3
+.
+.
+.
+.
+
+  select dept.deptno, dname, loc, min(sal) as minsal, max(sal) as maxsal, 
+					sum(sal) as sumsal, count(*) as no_of_emps from emp, dept
+								   where emp.deptno = dept.deptno
+					                                 group by dept.deptno, dname, loc
+
+10	ACCOUNTING	NEW YORK	1300.00	5000.00	8750.00		3
+20	RESEARCH	DALLAS		800.00	3000.00	10875.00	5
+30	SALES		CHICAGO		950.00	2850.00	9400.00		6
+
+
+-- waq to dislay in which location morethan 3 employees are working
+
+      Select Loc, count(*) as no_of_emps from Emp, Dept where Emp.deptno = Dept.deptno
+								 Group by loc having count(*)>3
+
+Other Examples :
+----------------
+
+Bank_Mas :  Accno, cname, Odate, Acc_type, Balance
+	     sbi1  king             s       4000
+             sbi2  scott            c       3000
+
+Bank_Trans: tno, Accno, Tdate,  Ttype, Tamount
+            1    sbi1  17th sep   d     1000
+            2    sbi2  16th sep   w     500
+            3    sbi1  16th sep   w     300
+
+
+-- waq to display who are joined in last month
+
+	    select * from emp where datepart(mm,hiredate)= datepart( mm, eomonth( getdate(),-1) ) 
+									and
+				    datepart(yy,hiredate) = datepart( yy, eomonth( getdate(),-1) )
+
+	 
+	-- waq to display who are joined current till date
+
+	  select * from emp where datepart(mm,hiredate)= datepart( mm, getdate() ) 
+								and
+				  datepart(yy,hiredate) = datepart( yy, getdate()  )
+
+
+-- waq to display customer details and corresponding each customer trans. details
+
+          Select * from bank_mas, Bank_Trans where bank_Mas.accno = bank_trans.accno;
+
+
+-- waq to display sbi1 customer details and corresponding each customer trans. details
+
+          Select * from bank_mas, Bank_Trans where bank_Mas.accno = bank_trans.accno
+								   and
+							bank_mas.accno = 'sbi1'
+
+
+-- waq to display sbi1 customer last month customer details and corresponding trans. details
+
+
+-- waq to display sbi1 customer current month till date customer details and corresponding trans. details
+
+
+
+
+
+
+
+
+
+stu_info:
+---------
+
+std_mas:
+--------
+std_id,  std_name,  class,
+
+std_address:
+------------
+std_id, hno, street, city, pincode, 
+
+std_marks:
+----------
+std_id,  maths, phys, chem, 
+
+std_grade:
+----------
+std_id, total, avg. grade, rank
+
+
+1
+.
+.
+.
+100
+
+std_prograss report
+--------------------
+
+  std_id, std_name, class, maths, phys, chem, total, avg, grade, rank
+
+
+
+M.Venkata Anvesh
+EmpId:2002027
+EmailId:
+mukka.anvesh@kfintech.com
+Manager: Prasanna kumar raut
+Department:IT
+
+
